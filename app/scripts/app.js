@@ -28,5 +28,13 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
     // imports are loaded and elements have been registered
   });
 
+  addEventListener('google-feeds-response', function showData (ev) {
+    console.log('response', ev);
+  } );
+
+  addEventListener('google-feeds-queryresponse', function showData (ev) {
+    console.log('queryresponse', ev);
+  } );
+
 
 })(document);

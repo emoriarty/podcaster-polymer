@@ -62,20 +62,67 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <body unresolved class="fullbleed layout vertical">
   <span id="browser-sync-binding"></span>
   <template is="dom-bind" id="app">
-    <paper-toolbar>
-      <div class="title">Podcaster</div>
-    </paper-toolbar>
-    <paper-tabs selected="0">
-      <paper-tab>Podcasts</paper-tab>
-      <paper-tab>Search</paper-tab>
-    </paper-tabs>
-    <google-feeds feed='http://www.ivoox.com/carne-cruda-es_fg_f157350_filtro_1.xml' results='{{result}}'></google-feeds>
-    <p>Feed title: <span>{{result.title}}</span></p>
-    <ul>
-      <template is="dom-repeat" items="{{result.entries}}">
-        <li>{{item.title}}</li>
-      </template>
-    </ul>
+    <paper-drawer-panel>
+      <paper-scroll-header-panel drawer>
+        <paper-toolbar class="paper-header">
+          <div>Menu</div>
+        </paper-toolbar>
+        <paper-menu class="content">
+          <paper-icon-item>
+            <iron-icon icon="device:wifi-tethering"></iron-icon>
+            <span>Podcast</span>
+          </paper-icon-item>
+          <paper-icon-item>
+            <iron-icon icon="av:radio"></iron-icon>
+            <span>Radios</span>
+          </paper-icon-item>
+        </paper-menu>
+      </paper-scroll-header-panel>
+
+      <paper-scroll-header-panel main class="flex" condenses condensed-header-height="48" keep-condensed-header>
+        <div class="paper-header">
+          <paper-toolbar class="">
+            <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
+            <div class="title">Podcaster</div>
+            <paper-menu-button horizontal-align="right" vertical-offset="56">
+              <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
+              <div class="dropdown-content">
+                <paper-item>Help</paper-item>
+              </div>
+            </paper-menu-button>
+
+          </paper-toolbar>
+          <paper-tabs selected="0">
+            <paper-tab>My Podcasts</paper-tab>
+            <paper-tab>Playlists</paper-tab>
+          </paper-tabs>
+        </div>
+
+        <div class="content">
+          <div class="podcast">
+            <!--google-feeds feed='http://feeds.feedburner.com/CarneDeVideoclubSerieB' results='{{result}}'></google-feeds>
+            <paper-card heading="{{result.title}}" image="{{result.image}}">
+              <div class="card-content">
+              </div>
+              <div class="card-actions">
+                <paper-button>Some action</paper-button>
+              </div>
+            </paper-card>
+
+            <ul>
+              <template is="dom-repeat" items="{{result.entries}}">
+                <li>{{item.title}}</li>
+              </template>
+            </ul-->
+            <div class="empty">
+              <iron-icon icon="device:wifi-tethering"></iron-icon>
+              <p>Still don't have any podcast?</p>
+            </div>
+          </div>
+        </div>
+      </paper-scroll-header-panel>
+
+    </paper-drawer-panel>
   </template>
 
   <!-- build:js scripts/app.js -->
