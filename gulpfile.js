@@ -280,6 +280,14 @@ gulp.task('serve:dist', ['default'], function () {
   });
 });
 
+// Clean bower components once finished with them directory
+gulp.task('optimize', function (cb) {
+  del([
+      gulp.paths.dist + '/bower_components',
+      gulp.paths.dist + '/elements/elements.html'],
+    cb);
+});
+
 gulp.task('build', ['clean'], function (cb) {
   // Uncomment 'cache-config' if you are going to use service workers.
   runSequence(
@@ -287,6 +295,7 @@ gulp.task('build', ['clean'], function (cb) {
     'elements',
     ['jshint', 'images', 'fonts', 'html'],
     'vulcanize', // 'cache-config',
+    'optimize',
     cb);
 });
 
