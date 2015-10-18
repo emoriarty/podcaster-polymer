@@ -67,14 +67,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-toolbar class="paper-header">
           <div>Menu</div>
         </paper-toolbar>
-        <paper-menu class="content">
-          <paper-icon-item>
-            <iron-icon icon="device:wifi-tethering"></iron-icon>
-            <span>Podcast</span>
+        <paper-menu class="content" attr-for-selected="route" selected="{{appRoute}}">
+          <paper-icon-item route="podcasts">
+            <iron-icon icon="device:wifi-tethering" item-icon></iron-icon>
+            <a href="#/podcasts">Podcast</a>
           </paper-icon-item>
-          <paper-icon-item>
-            <iron-icon icon="av:radio"></iron-icon>
-            <span>Radios</span>
+          <paper-icon-item route="radios">
+            <iron-icon icon="av:radio" item-icon></iron-icon>
+            <a href="#/radios">Radios</a>
           </paper-icon-item>
         </paper-menu>
       </paper-scroll-header-panel>
@@ -92,33 +92,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </paper-menu-button>
 
           </paper-toolbar>
-          <paper-tabs selected="0">
+          <!--paper-tabs selected="0">
             <paper-tab>My Podcasts</paper-tab>
             <paper-tab>Playlists</paper-tab>
-          </paper-tabs>
+          </paper-tabs-->
         </div>
 
         <div class="content">
-          <div class="podcast">
-            <!--google-feeds feed='http://feeds.feedburner.com/CarneDeVideoclubSerieB' results='{{result}}'></google-feeds>
-            <paper-card heading="{{result.title}}" image="{{result.image}}">
-              <div class="card-content">
-              </div>
-              <div class="card-actions">
-                <paper-button>Some action</paper-button>
-              </div>
-            </paper-card>
+          <iron-pages attr-for-selected="route" selected="{{appRoute}}">
+            <section class="podcasts" route="podcasts">
+              <!--google-feeds feed='http://feeds.feedburner.com/CarneDeVideoclubSerieB' results='{{result}}'></google-feeds>
+              <paper-card heading="{{result.title}}" image="{{result.image}}">
+                <div class="card-content">
+                </div>
+                <div class="card-actions">
+                  <paper-button>Some action</paper-button>
+                </div>
+              </paper-card>
 
-            <ul>
-              <template is="dom-repeat" items="{{result.entries}}">
-                <li>{{item.title}}</li>
-              </template>
-            </ul-->
-            <div class="empty">
-              <iron-icon icon="device:wifi-tethering"></iron-icon>
-              <p>Still don't have any podcast?</p>
-            </div>
-          </div>
+              <ul>
+                <template is="dom-repeat" items="{{result.entries}}">
+                  <li>{{item.title}}</li>
+                </template>
+              </ul-->
+              <div class="empty">
+                <iron-icon icon="device:wifi-tethering"></iron-icon>
+                <p>Still don't have any podcast?</p>
+              </div>
+            </section>
+            <section class="radios" route="radios">
+              <div class="empty">
+                <iron-icon icon="av:radio"></iron-icon>
+                <p>Still don't have any radio?</p>
+              </div>
+            </section>
+          </iron-pages>
         </div>
       </paper-scroll-header-panel>
 
