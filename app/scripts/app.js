@@ -21,6 +21,8 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
     console.log('Our app is ready to rock!');
+    // manual start because we are inside dom-bind template
+    //Excess.RouteManager.start();
   });
 
   // See https://github.com/Polymer/polymer/issues/1381
