@@ -38,5 +38,10 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
     console.log('queryresponse', ev);
   } );
 
-
 })(document);
+
+function addPodcast(ev) {
+  console.log('clicked');
+  var dialog = document.getElementById('addPodcastDlg');
+  dialog.open();
+}

@@ -121,13 +121,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </ul-->
               <div class="empty">
                 <iron-icon icon="device:wifi-tethering"></iron-icon>
-                <p>Still don't have any podcast?</p>
+                <p>Still don't have any podcast? <br />You can add a new podcast by tapping the plus button</p>
+                <paper-icon-button onclick="addPodcast()" icon="icons:add-box"></paper-icon-button>
               </div>
             </section>
             <section class="radios" route="radios">
               <div class="empty">
                 <iron-icon icon="av:radio"></iron-icon>
-                <p>Still don't have any radio?</p>
+                <p>Still don't have any radio?<br />You can add a new radio by tapping the plus button</p>
+                <paper-icon-button onclick="addPodcast()" icon="icons:add-box"></paper-icon-button>
               </div>
             </section>
           </iron-pages>
@@ -135,6 +137,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </paper-scroll-header-panel>
 
     </paper-drawer-panel>
+    <section id="dialogs">
+      <paper-dialog id="addPodcastDlg" modal>
+        <h2>New Podcast</h2>
+        <paper-input label="add podcast feed"></paper-input>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Cancel</paper-button>
+          <paper-button dialog-confirm>Add</paper-button>
+        </div>
+      </paper-dialog>
+    </section>
   </template>
 
   <!-- build:js scripts/app.js -->
