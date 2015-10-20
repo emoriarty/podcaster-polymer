@@ -46,7 +46,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="stylesheet" href="styles/main.css">
   <!-- endbuild-->
 
-  <!-- build:js bower_components/webcomponentsjs/webcomponents-lite.min.js -->
+  <!-- build:js scripts/webcomponents-lite.min.js -->
   <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <!-- endbuild -->
 
@@ -102,6 +102,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="content">
           <iron-pages attr-for-selected="route" selected="{{appRoute}}">
             <section class="podcasts" route="podcasts">
+              <!-- regex to match images
+                /(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)(jpg|png|gif)/g
+              -->
               <!--google-feeds feed='http://feeds.feedburner.com/CarneDeVideoclubSerieB' results='{{result}}'></google-feeds>
               <paper-card heading="{{result.title}}" image="{{result.image}}">
                 <div class="card-content">
