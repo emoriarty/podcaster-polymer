@@ -49,6 +49,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <!-- build:js scripts/webcomponents-lite.min.js -->
   <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <!-- endbuild -->
+  <!-- build:js scripts/underscore.min.js -->
+  <script src="bower_components/underscore/underscore.js"></script>
+  <!-- endbuild -->
 
   <!-- will be replaced with elements/elements.vulcanized.html -->
   <link rel="import" href="elements/elements.html">
@@ -62,7 +65,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <body unresolved class="fullbleed layout vertical">
   <span id="browser-sync-binding"></span>
   <template is="dom-bind" id="app">
+
     <podcaster-routing app-route={{appRoute}}></podcaster-routing>
+    <iron-localstorage name="podcasts" value="{{podcastsList}}" on-iron-localstorage-load-empty="checkPodcasts"></iron-localstorage>
+    <google-feeds id="feedLoader" result="{{podcastFeed}}" format="mixed"></google-feeds>
+
     <paper-drawer-panel>
       <paper-scroll-header-panel drawer>
         <paper-toolbar class="paper-header">
@@ -105,31 +112,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <!-- regex to match images
                 /(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)(jpg|png|gif)/g
               -->
-              <!--google-feeds feed='http://feeds.feedburner.com/CarneDeVideoclubSerieB' results='{{result}}'></google-feeds>
-              <paper-card heading="{{result.title}}" image="{{result.image}}">
-                <div class="card-content">
-                </div>
-                <div class="card-actions">
-                  <paper-button>Some action</paper-button>
-                </div>
-              </paper-card>
+              <template is="dom-if" if="[[podcastsList]]">
+                <template is="dom-repeat" items="[[podcastsList]]">
+                  <paper-card>
+                    <div class="card-content">
+                      <template is="dom-if" if="[[item.cover]]">
+                        <iron-image src="[[item.cover]]" sizing="cover" style="width:100%;height:160px"></iron-image>
+                      </template>
+                      <article><h3>[[item.title]]</h3></article>
+                    </div>
+                  </paper-card>
+                  <paper-fab onclick="{{showAddPodcastDialog}}" icon="add"></paper-fab>
+                  <!--ul>
+                    <template is="dom-repeat" items="{{result.entries}}">
+                      <li>{{item.title}}</li>
+                    </template>
+                  </ul-->
 
-              <ul>
-                <template is="dom-repeat" items="{{result.entries}}">
-                  <li>{{item.title}}</li>
                 </template>
-              </ul-->
-              <div class="empty">
-                <iron-icon icon="device:wifi-tethering"></iron-icon>
-                <p>Still don't have any podcast? <br />You can add a new podcast by tapping the plus button</p>
-                <paper-icon-button onclick="addPodcast()" icon="icons:add-box"></paper-icon-button>
-              </div>
+              </template>
+              <template is="dom-if" if="[[!podcastsList]]">
+                <div class="empty">
+                  <iron-icon icon="device:wifi-tethering"></iron-icon>
+                  <p>Still don't have any podcast? <br />You can add a new podcast by tapping the plus button</p>
+                  <paper-icon-button onclick="{{showAddPodcastDialog}}" icon="icons:add-box"></paper-icon-button>
+                </div>
+              </template>
             </section>
             <section class="radios" route="radios">
               <div class="empty">
                 <iron-icon icon="av:radio"></iron-icon>
                 <p>Still don't have any radio?<br />You can add a new radio by tapping the plus button</p>
-                <paper-icon-button onclick="addPodcast()" icon="icons:add-box"></paper-icon-button>
+                <paper-icon-button icon="icons:add-box"></paper-icon-button>
               </div>
             </section>
           </iron-pages>
@@ -143,7 +157,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-input label="add podcast feed"></paper-input>
         <div class="buttons">
           <paper-button dialog-dismiss>Cancel</paper-button>
-          <paper-button dialog-confirm>Add</paper-button>
+          <paper-button dialog-confirm onclick="{{addPodcast}}">Add</paper-button>
         </div>
       </paper-dialog>
     </section>

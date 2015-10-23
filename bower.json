@@ -18,7 +18,12 @@
     "iron-pages": "PolymerElements/iron-pages#~1.0.3",
     "google-apis": "~1.1.2",
     "paper-dialog": "PolymerElements/paper-dialog#~1.0.2",
-    "paper-input": "PolymerElements/paper-input#~1.0.15"
+    "paper-input": "PolymerElements/paper-input#~1.0.15",
+    "paper-button": "PolymerElements/paper-button#~1.0.8",
+    "iron-localstorage": "PolymerElements/iron-localstorage#~1.0.4",
+    "iron-image": "PolymerElements/iron-image#~1.0.2",
+    "underscore": "~1.8.3",
+    "paper-fab": "PolymerElements/paper-fab#~1.0.6"
   },
   "devDependencies": {
     "web-component-tester": "*",

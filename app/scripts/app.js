@@ -1,3 +1,4 @@
+/*jshint -W117 */
 /*
 Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
 */
@@ -25,23 +26,56 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
     //Excess.RouteManager.start();
   });
 
+  app.showAddPodcastDialog = function(ev) {
+    var dialog = document.getElementById('addPodcastDlg');
+    dialog.open();
+  };
+
+  app.addPodcast = function(ev) {
+    var feedUrl    = document.querySelector('#addPodcastDlg input').value,
+        feedLoader = document.getElementById('feedLoader');
+
+    if (app.podcastsList && !_.findWhere(app.podcastsList, {feedUrl: feedUrl})) {
+      feedLoader.feed = feedUrl;
+    }
+  }
+
+  app.checkPodcasts = function(ev) {
+    console.log('load empty', ev);
+  };
+
   // See https://github.com/Polymer/polymer/issues/1381
   window.addEventListener('WebComponentsReady', function() {
     // imports are loaded and elements have been registered
   });
 
   addEventListener('google-feeds-response', function showData (ev) {
-    console.log('response', ev);
-  } );
+    var feed       = ev.detail.feed,
+        feedStore  = document.querySelector('iron-localstorage[name=podcasts]'),
+        serializer = new XMLSerializer(),
+        images     = serializer.serializeToString(feed.xmlDocument)
+          .match(/(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)(jpg|png|gif)/g);
 
-  addEventListener('google-feeds-queryresponse', function showData (ev) {
-    console.log('queryresponse', ev);
-  } );
+    if (images && images.length > 0) {
+      feed.images = images;
+      feed.cover = images[0];
+      console.log('cover', feed.cover);
+      delete feed.xmlDocument;
+    }
+
+    if (!app.podcastsList) {
+      app.podcastsList = [];
+      app.podcastsList.push(feed);
+    } else {
+      app.podcastsList.push(feed);
+      feedStore.value = app.podcastsList;
+      feedStore.save();
+    }
+  });
+
+  addEventListener('iron-localstorage-load', function(ev) {
+    console.log('local storage load', ev);
+    console.log(app.podcastsList);
+  });
 
 })(document);
-
-function addPodcast(ev) {
-  console.log('clicked');
-  var dialog = document.getElementById('addPodcastDlg');
-  dialog.open();
-}
