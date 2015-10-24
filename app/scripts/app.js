@@ -26,19 +26,19 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
     //Excess.RouteManager.start();
   });
 
-  app.showAddPodcastDialog = function(ev) {
+  app.showAddPodcastDialog = function() {
     var dialog = document.getElementById('addPodcastDlg');
     dialog.open();
   };
 
-  app.addPodcast = function(ev) {
+  app.addPodcast = function() {
     var feedUrl    = document.querySelector('#addPodcastDlg input').value,
         feedLoader = document.getElementById('feedLoader');
 
-    if (app.podcastsList && !_.findWhere(app.podcastsList, {feedUrl: feedUrl})) {
+    if (!app.podcastsList || !_.findWhere(app.podcastsList, {feedUrl: feedUrl})) {
       feedLoader.feed = feedUrl;
     }
-  }
+  };
 
   app.checkPodcasts = function(ev) {
     console.log('load empty', ev);
@@ -70,6 +70,7 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
       app.podcastsList.push(feed);
       feedStore.value = app.podcastsList;
       feedStore.save();
+      feedStore.reload();
     }
   });
 

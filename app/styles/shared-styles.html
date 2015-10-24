@@ -12,6 +12,10 @@
         }
       }
 
+      .content .podcasts, .content .radios{
+        padding: 1rem 0.5rem 0;
+      }
+
       .content .empty{
         @apply(--layout-vertical);
         @apply(--layout-center);
@@ -30,6 +34,11 @@
         width: 4rem;
       }
 
+      .podcasts {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+      }
+
       .podcasts paper-fab {
         position: fixed;
         bottom: 10px;
@@ -37,8 +46,33 @@
       }
 
       .podcasts paper-card {
-        margin-bottom: 1rem;
-        width: 100%;
+        @apply(--layout-flex);
+        margin: 0 0.5rem 1rem;
+        min-width: 46%;
+      }
+
+      @media all and (min-width: 641px) {
+        .podcasts paper-card {
+          min-width: 100%;
+        }
+      }
+
+      @media all and (min-width: 841px) {
+        .podcasts paper-card {
+          min-width: 46%;
+        }
+      }
+
+      @media all and (min-width: 961px) {
+        .podcasts paper-card {
+          min-width: 30%;
+        }
+      }
+
+      @media all and (min-width: 1281px) {
+        .podcasts paper-card {
+          min-width: 22%;
+        }
       }
     </style>
   </template>

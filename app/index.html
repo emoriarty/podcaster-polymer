@@ -122,7 +122,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       <article><h3>[[item.title]]</h3></article>
                     </div>
                   </paper-card>
-                  <paper-fab onclick="{{showAddPodcastDialog}}" icon="add"></paper-fab>
                   <!--ul>
                     <template is="dom-repeat" items="{{result.entries}}">
                       <li>{{item.title}}</li>
@@ -130,6 +129,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   </ul-->
 
                 </template>
+                <paper-fab onclick="{{showAddPodcastDialog}}" icon="add"></paper-fab>
               </template>
               <template is="dom-if" if="[[!podcastsList]]">
                 <div class="empty">
