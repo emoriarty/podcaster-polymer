@@ -12,8 +12,29 @@
         }
       }
 
-      .content .podcasts, .content .radios{
+      .content .podcasts, .content .radios {
         padding: 1rem 0.5rem 0;
+      }
+
+      .content .podcastEntries {
+        padding: 1rem 1rem;
+      }
+
+      .content paper-item {
+        border: 1px solid var(--light-primary-color);
+        border-bottom: 0;
+      }
+
+      .content audio {
+        width: 100%;
+      }
+
+      .itemTitle {
+        color: var(--default-primary-color);
+      }
+
+      .content paper-item:last-child {
+        border-bottom: 1px solid var(--light-primary-color);
       }
 
       .content .empty{
@@ -49,6 +70,10 @@
         @apply(--layout-flex);
         margin: 0 0.5rem 1rem;
         min-width: 46%;
+      }
+
+      .card-content iron-image {
+        background-color: var(--default-primary-color);
       }
 
       @media all and (min-width: 641px) {

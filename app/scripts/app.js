@@ -21,9 +21,7 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
   // Listen for template bound event to know when bindings
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
-    console.log('Our app is ready to rock!');
-    // manual start because we are inside dom-bind template
-    //Excess.RouteManager.start();
+    app.currentEntry = false; // Set falsy to prevent not being shown he podcasts list
   });
 
   app.showAddPodcastDialog = function() {
@@ -35,7 +33,7 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
     var feedUrl    = document.querySelector('#addPodcastDlg input').value,
         feedLoader = document.getElementById('feedLoader');
 
-    if (!app.podcastsList || !_.findWhere(app.podcastsList, {feedUrl: feedUrl})) {
+    if (!app.podcasts || !_.findWhere(app.podcasts, {feedUrl: feedUrl})) {
       feedLoader.feed = feedUrl;
     }
   };
@@ -44,39 +42,67 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
     console.log('load empty', ev);
   };
 
+  app.showEntries = function() {
+    var pID = this.querySelector('input[name=podcast-id]');
+    if (pID && pID.value) {
+      Excess.RouteManager.transitionTo('/podcast/' + pID.value);
+    }
+  };
+
+  app.showEntry = function() {
+    var eID = this.querySelector('input[name=entry-id]');
+    if (eID && eID.value) {
+      Excess.RouteManager.transitionTo('/podcast/' + app.podcastId + '/'+ eID.value);
+    }
+  };
+
   // See https://github.com/Polymer/polymer/issues/1381
   window.addEventListener('WebComponentsReady', function() {
     // imports are loaded and elements have been registered
   });
 
   addEventListener('google-feeds-response', function showData (ev) {
-    var feed       = ev.detail.feed,
-        feedStore  = document.querySelector('iron-localstorage[name=podcasts]'),
-        serializer = new XMLSerializer(),
-        images     = serializer.serializeToString(feed.xmlDocument)
-          .match(/(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)(jpg|png|gif)/g);
+    var feed      = ev.detail.feed,
+        feedStore = document.querySelector('iron-localstorage[name=podcasts]'),
+        image     = feed.xmlDocument.querySelector('image');
+        //serializer = new XMLSerializer(),
+        //images     = serializer.serializeToString(feed.xmlDocument)
+        //  .match(/(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)(jpg|png|gif)/g);
 
-    if (images && images.length > 0) {
-      feed.images = images;
-      feed.cover = images[0];
-      console.log('cover', feed.cover);
-      delete feed.xmlDocument;
+    if (image) {
+      feed.cover = image.getAttribute('href');
     }
 
-    if (!app.podcastsList) {
-      app.podcastsList = [];
-      app.podcastsList.push(feed);
+    // Store track in a properly way
+    _.each(feed.entries, function(entry) {
+      var track = entry.xmlNode.querySelector('enclosure'),
+          cover = entry.xmlNode.querySelector('image'),
+          summary;
+      track && (entry.track = track.getAttribute('url'));
+      cover && (entry.cover = cover.getAttribute('href'));
+
+      if (!entry.content) {
+        summary = entry.xmlNode.querySelector('summary');
+        summary && (entry.content = summary.textContent);
+      }
+      delete entry.xmlNode;
+    })
+
+    delete feed.xmlDocument;
+
+    if (!app.podcasts) {
+      app.podcasts = [];
+      app.podcasts.push(feed);
     } else {
-      app.podcastsList.push(feed);
-      feedStore.value = app.podcastsList;
+      app.podcasts.push(feed);
+      feedStore.value = app.podcasts;
       feedStore.save();
       feedStore.reload();
     }
   });
 
-  addEventListener('iron-localstorage-load', function(ev) {
-    console.log('local storage load', ev);
-    console.log(app.podcastsList);
+  addEventListener('iron-localstorage-load', function() {
+    console.log(app.podcasts);
   });
 
 })(document);

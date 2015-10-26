@@ -66,8 +66,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <span id="browser-sync-binding"></span>
   <template is="dom-bind" id="app">
 
-    <podcaster-routing app-route={{appRoute}}></podcaster-routing>
-    <iron-localstorage name="podcasts" value="{{podcastsList}}" on-iron-localstorage-load-empty="checkPodcasts"></iron-localstorage>
+    <podcaster-routing app-route={{appRoute}}
+      podcasts="{{podcasts}}"
+      podcast-id="{{podcastId}}"
+      entry-id="{{entryId}}"
+      current-podcast="{{currentPodcast}}"
+      current-entry="{{currentEntry}}" ></podcaster-routing>
+    <iron-localstorage name="podcasts" value="{{podcasts}}" on-iron-localstorage-load-empty="checkPodcasts"></iron-localstorage>
     <google-feeds id="feedLoader" result="{{podcastFeed}}" format="mixed"></google-feeds>
 
     <paper-drawer-panel>
@@ -87,7 +92,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-menu>
       </paper-scroll-header-panel>
 
-      <paper-scroll-header-panel main class="flex" condenses condensed-header-height="48" keep-condensed-header>
+      <paper-scroll-header-panel main class="flex">
         <div class="paper-header">
           <paper-toolbar class="">
             <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
@@ -108,16 +113,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <div class="content">
           <iron-pages attr-for-selected="route" selected="{{appRoute}}">
+            <!-- All podcasts -->
             <section class="podcasts" route="podcasts">
-              <!-- regex to match images
-                /(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)(jpg|png|gif)/g
-              -->
-              <template is="dom-if" if="[[podcastsList]]">
-                <template is="dom-repeat" items="[[podcastsList]]">
-                  <paper-card>
+              <template is="dom-if" if="[[podcasts]]">
+                <template is="dom-repeat" items="[[podcasts]]">
+                  <paper-card onclick="[[showEntries]]">
+                    <input type="hidden" name="podcast-id" value="[[index]]"></input>
                     <div class="card-content">
                       <template is="dom-if" if="[[item.cover]]">
-                        <iron-image src="[[item.cover]]" sizing="cover" style="width:100%;height:160px"></iron-image>
+                        <iron-image preload fade src="[[item.cover]]" sizing="cover" style="width:100%;height:160px"></iron-image>
                       </template>
                       <article><h3>[[item.title]]</h3></article>
                     </div>
@@ -131,14 +135,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </template>
                 <paper-fab onclick="{{showAddPodcastDialog}}" icon="add"></paper-fab>
               </template>
-              <template is="dom-if" if="[[!podcastsList]]">
+              <template is="dom-if" if="[[!podcasts]]">
                 <div class="empty">
                   <iron-icon icon="device:wifi-tethering"></iron-icon>
                   <p>Still don't have any podcast? <br />You can add a new podcast by tapping the plus button</p>
-                  <paper-icon-button onclick="{{showAddPodcastDialog}}" icon="icons:add-box"></paper-icon-button>
+                  <paper-icon-button onclick="[[showAddPodcastDialog]]" icon="icons:add-box"></paper-icon-button>
                 </div>
               </template>
             </section>
+
+            <!-- Current podcast list -->
+            <section class="podcastEntries" route="podcast">
+              <template is="dom-if" if="{{!currentEntry}}">
+                <iron-list id="list" items="[[currentPodcast.entries]]" as="entry">
+                  <template>
+                    <paper-item onclick="[[showEntry]]">
+                      <input type="hidden" name="entry-id" value="[[index]]"></input>
+                      <div class="itemContent">
+                        <h3 class="itemTitle">[[entry.title]]</h3>
+                        <p class="itemShortText">[[entry.contentSnippet]]</p>
+                      </div>
+                    </paper-item>
+                  </template>
+                </iron-list>
+              </template>
+              <template is="dom-if" if="{{currentEntry}}">
+                <h2>[[currentEntry.title]]</h2>
+                <audio src="[[currentEntry.track]]" controls loop>
+                  <p>Your current broswer does not support audio.</p>
+                </audio>
+                <p>[[currentEntry.content]]</p>
+              </template>
+            </section>
+
+            <!-- All Radios -->
             <section class="radios" route="radios">
               <div class="empty">
                 <iron-icon icon="av:radio"></iron-icon>

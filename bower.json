@@ -23,7 +23,8 @@
     "iron-localstorage": "PolymerElements/iron-localstorage#~1.0.4",
     "iron-image": "PolymerElements/iron-image#~1.0.2",
     "underscore": "~1.8.3",
-    "paper-fab": "PolymerElements/paper-fab#~1.0.6"
+    "paper-fab": "PolymerElements/paper-fab#~1.0.6",
+    "iron-list": "PolymerElements/iron-list#~1.1.5"
   },
   "devDependencies": {
     "web-component-tester": "*",

@@ -15,7 +15,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="podcaster-routing">
   <template>
     <excess-router-config path-style="hash"></excess-router-config>
+
     <excess-route route="/:main/(.*)?" main="{{appRoute}}"></excess-route>
+
+    <excess-route route="/podcast/:podcastId/:entryId?"
+      podcast-id="{{podcastId}}"
+      entry-id="{{entryId}}"
+      on-excess-route-will-deactivate="cleanCurrentEntry"></excess-route>
+
     <excess-route route="/(.*)" redirect-to="/podcasts" activation-modifiers="x"></excess-route>
   </template>
   <script>
@@ -29,7 +36,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         appRoute: {
           type: String,
           notify: true
+        },
+        podcasts: {
+          type: Array
+        },
+        podcastId: {
+          type: Number,
+          notify: true
+        },
+        entryId: {
+          type: Number,
+          notify: true
+        },
+        currentPodcast: {
+          type: Object,
+          computed: '_selectPodcast(podcastId)',
+          notify: true,
+          reflectToAttribute: true
+        },
+        currentEntry: {
+          type: Object,
+          computed: '_selectEntry(podcastId, entryId)',
+          notify: true,
+          reflectToAttribute: true
         }
+      },
+
+      _selectPodcast: function(cp) {
+        this.entryId = undefined;
+        return this.podcasts[cp];
+      },
+
+      _selectEntry: function(cp, ep) {
+        return this.podcasts[cp].entries[ep];
+      },
+
+      cleanCurrentEntry: function() {
+        console.log('cleanCurrentEntry');
+        this.entryId = null;
       }
     });
   })();
