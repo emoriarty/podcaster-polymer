@@ -123,7 +123,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       <template is="dom-if" if="[[item.cover]]">
                         <iron-image preload fade src="[[item.cover]]" sizing="cover" style="width:100%;height:160px"></iron-image>
                       </template>
-                      <article><h3>[[item.title]]</h3></article>
+                      <article>
+                        <h3 class="itemTitle">[[item.title]]</h3>
+                        <span class="category">[[item.category]]</span>
+                      </article>
                     </div>
                   </paper-card>
                   <!--ul>
@@ -149,22 +152,55 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <template is="dom-if" if="{{!currentEntry}}">
                 <iron-list id="list" items="[[currentPodcast.entries]]" as="entry">
                   <template>
-                    <paper-item onclick="[[showEntry]]">
-                      <input type="hidden" name="entry-id" value="[[index]]"></input>
-                      <div class="itemContent">
-                        <h3 class="itemTitle">[[entry.title]]</h3>
-                        <p class="itemShortText">[[entry.contentSnippet]]</p>
-                      </div>
-                    </paper-item>
+                    <div class="itemWrapper">
+                      <paper-material class="item" elevation="1">
+                        <div onclick="[[showEntry]]">
+                          <input type="hidden" name="entry-id" value="[[index]]"></input>
+                          <article class="itemContent">
+                            <header>
+                              <label class="itemDate">[[entry.publishedDate]]</label>
+                              <h3 class="itemTitle">[[entry.title]]</h3>
+                            </header>
+
+                            <div class="itemSubcontent">
+                              <template is="dom-if" if="[[entry.cover]]">
+                                <iron-image class="itemImage" preload fade src="[[entry.cover]]" sizing="cover" height="150"></iron-image>
+                              </template>
+                              <div class="itemInfo">
+                                <p class="itemShortDescription">[[entry.contentSnippet]]</p>
+                                <ul class="itemFeatures">
+                                  <li>[[entry.duration]]</li>
+                                </ul>
+                              </div>
+                            </div>
+                          </article>
+                        </div>
+                      </paper-material>
+                    </div>
                   </template>
                 </iron-list>
               </template>
               <template is="dom-if" if="{{currentEntry}}">
-                <h2>[[currentEntry.title]]</h2>
-                <audio src="[[currentEntry.track]]" controls loop>
-                  <p>Your current broswer does not support audio.</p>
-                </audio>
-                <p>[[currentEntry.content]]</p>
+                <paper-card class="itemDetail" elevation="2">
+                  <article class="itemContent">
+                    <header>
+                      <label class="itemDate">[[currentEntry.publishedDate]]</label>
+                      <h2 class="itemTitle">[[currentEntry.title]]</h2>
+                    </header>
+                    <div class="body">
+                      <audio src="[[currentEntry.track]]" controls loop>
+                        <p>Your current broswer does not support audio.</p>
+                      </audio>
+                      <div class="itemSubcontent">
+                        <template is="dom-if" if="[[currentEntry.cover]]">
+                          <iron-image class="itemImage" preload fade src="[[currentEntry.cover]]" sizing="cover" height="150"></iron-image>
+                        </template>
+                        <p class="itemDescription">[[currentEntry.content]]</p>
+                      </div>
+                    </div>
+
+                  </article>
+                </paper-card>
               </template>
             </section>
 
