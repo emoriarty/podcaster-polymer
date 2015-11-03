@@ -31,79 +31,6 @@
         width: 100%;
       }
 
-      /*
-       * Items
-       */
-      .itemContent {
-       @apply(--layout-vertical);
-       padding: 1em 0;
-      }
-
-      .itemContent * {
-        box-sizing: border-box;
-        margin-bottom: 1em;
-      }
-
-      .itemContent *:last-child {
-        margin-bottom: 0;
-      }
-
-      .itemDate {
-        display: block;
-        margin-bottom: 0.5em;
-        text-align: right;
-      }
-
-      .itemContent header {
-        width: 100%;
-      }
-
-      .itemContent h2, .itemContent h3 {
-        margin: 0;
-      }
-
-      .itemContent ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-      }
-
-      .itemContent li {
-        display: inline-block;
-      }
-
-      .itemSubcontent {
-        @apply(--layout-vertical);
-      }
-
-      .itemTitle {
-        color: var(--default-primary-color);
-      }
-
-      .itemSubcontent .itemImage {
-        @apply(--layout-flex-1);
-        margin-bottom: 1em;
-        width: 100%;
-      }
-
-      .itemSubcontent .itemInfo {
-        @apply(--layout-flex-3);
-        @apply(--layout-vertical);
-      }
-
-      .itemInfo .itemFeatures {
-        @apply(--layout-flex-1);
-      }
-
-      .itemDescription, .itemShortDescription {
-        @apply(--layout-flex-4);
-        margin: 0;
-      }
-
-      .itemDetail {
-        padding: 1em;
-      }
-
       .content .empty{
         @apply(--layout-vertical);
         @apply(--layout-center);
@@ -130,11 +57,6 @@
         @apply(--layout-wrap);
       }
 
-      .podcasts paper-fab {
-        position: fixed;
-        bottom: 10px;
-        right: 10px;
-      }
 
       .podcasts paper-card {
         @apply(--layout-flex);
@@ -146,53 +68,19 @@
         padding: 1em;
       }
 
-      /* GLOBALS */
-      .itemDuration, .itemFeatures, .category, .itemDate {
-        font-size: 0.8em;
-        color: var(--secondary-text-color);
-      }
-
+      /* Breakpoints */
       @media all and (min-width: 481px) {
-        .itemSubcontent {
-          @apply(--layout-horizontal);
-        }
-
-        .itemSubcontent .itemImage {
-          width: 150px;
-          margin-right: 1em;
-          margin-bottom: 0;
-        }
       }
 
       @media all and (min-width: 641px) {
         .podcasts paper-card {
           min-width: 100%;
         }
-
-        .itemSubcontent {
-          @apply(--layout-vertical);
-        }
-
-        .itemSubcontent .itemImage {
-          margin-right: 0;
-          margin-bottom: 1em;
-          width: 100%;
-        }
       }
 
       @media all and (min-width: 841px) {
         .podcasts paper-card {
           min-width: 46%;
-        }
-
-        .itemSubcontent {
-          @apply(--layout-horizontal);
-        }
-
-        .itemSubcontent .itemImage {
-          width: 150px;
-          margin-right: 1em;
-          margin-bottom: 0;
         }
       }
 

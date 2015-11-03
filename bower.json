@@ -26,7 +26,8 @@
     "paper-fab": "PolymerElements/paper-fab#~1.0.6",
     "iron-list": "PolymerElements/iron-list#~1.1.5",
     "iron-ajax": "PolymerElements/iron-ajax#~1.0.7",
-    "paper-material": "PolymerElements/paper-material#~1.0.3"
+    "paper-material": "PolymerElements/paper-material#~1.0.3",
+    "paper-progress": "PolymerElements/paper-progress#~1.0.7"
   },
   "devDependencies": {
     "web-component-tester": "*",

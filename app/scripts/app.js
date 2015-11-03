@@ -1,4 +1,4 @@
-/*jshint -W117 */
+/* global Excess, _ */
 /*
 Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
 */
@@ -11,12 +11,10 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
   // Learn more about auto-binding templates at http://goo.gl/Dx1u2g
   var app = document.querySelector('#app');
 
-  app.displayInstalledToast = function() {
-    // Check to make sure caching is actually enabled—it won't be in the dev environment.
-    if (!document.querySelector('platinum-sw-cache').disabled) {
-      document.querySelector('#caching-complete').show();
-    }
-  };
+  // See https://github.com/Polymer/polymer/issues/1381
+  window.addEventListener('WebComponentsReady', function() {
+    // imports are loaded and elements have been registered
+  });
 
   // Listen for template bound event to know when bindings
   // have resolved and content has been stamped to the page
@@ -56,10 +54,47 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
     }
   };
 
-  // See https://github.com/Polymer/polymer/issues/1381
-  window.addEventListener('WebComponentsReady', function() {
-    // imports are loaded and elements have been registered
-  });
+  app.play = function(ev) {
+    if (!ev.detail || !ev.detail.track) {
+      console.log('no track to play!');
+    } else {
+      var currentEntry = ev.detail,
+          player       = document.querySelector('podcaster-player'),
+          panel        = document.querySelector('.panelBottom iron-collapse');
+
+      if (app.currentEntry.target) {
+        app.currentEntry.target.playing(false);
+      }
+
+      if (!currentEntry.playing) {
+        currentEntry.target = ev.currentTarget;
+        app.currentEntry = currentEntry;
+      }
+
+      player.play();
+      panel.show();
+    }
+  };
+
+  app.pause = function(ev) {
+    if (ev.detail) {
+      var player = document.querySelector('podcaster-player');
+      ev.detail.playing = false;
+      player.pause();
+    }
+  };
+
+  app.handlePlay = function(ev) {
+    if (ev.detail.title === app.currentEntry.title) {
+      app.currentEntry.target.playing(true);
+    }
+  };
+
+  app.handlePause = function(ev) {
+    if (ev.detail.title === app.currentEntry.title) {
+      app.currentEntry.target.playing(false);
+    }
+  };
 
   addEventListener('google-feeds-response', function showData (ev) {
     var feed      = ev.detail.feed,
@@ -85,6 +120,12 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
 
   addEventListener('iron-localstorage-load', function() {
     console.log(app.podcasts);
+    //TODO Load currentEntry and currentPodcast
+  });
+
+  addEventListener('onbeforeunload', function() {
+      console.log('onbeforeunload');
+      //var player = document.querySelector('podcaster-player');
   });
 
   // Podcast entry related functions
@@ -121,7 +162,7 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
     if (!feed.description) {
       summary = feed.xmlDocument.querySelector('summary');
       if (summary && summary.textContent) {
-        entry.description = summary.textContent;
+        feed.description = summary.textContent;
       }
     }
 

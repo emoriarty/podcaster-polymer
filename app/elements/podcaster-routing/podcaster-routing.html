@@ -48,6 +48,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type: Number,
           notify: true
         },
+        audioPlayer: {
+          type: Object,
+          computed: '_selectAudioPlayer(entryId)'
+        },
         currentPodcast: {
           type: Object,
           computed: '_selectPodcast(podcastId)',
@@ -71,9 +75,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         return this.podcasts[cp].entries[ep];
       },
 
+      _selectAudioPlayer: function(entryId) {
+        console.log(entryId);
+      },
+
       cleanCurrentEntry: function() {
         console.log('cleanCurrentEntry');
-        this.entryId = null;
+        if (this.entryId) {
+          this.entryId = null;
+        }
       }
     });
   })();

@@ -59,10 +59,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
    }
   }
 
+  /* PANEL BOTTOM */
+  .panelBottom {
+    background: var(--light-primary-color);
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+  }
+
+  .panelBottom .addButton {
+    position: absolute;
+    top: calc(-56px + -1em);
+    right: 1em;
+  }
+
+  .panelBottom podcaster-player {
+    margin: 0 auto;
+  }
+
   /* General styles */
   iron-image {
     background-color: var(--default-primary-color);
   }
+
+  paper-card paper-icon-button {
+    color: var(--dark-primary-color);
+  }
+
 
   /* Breakpoints */
 

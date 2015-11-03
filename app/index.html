@@ -66,14 +66,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <span id="browser-sync-binding"></span>
   <template is="dom-bind" id="app">
 
+    <!-- FE routing -->
     <podcaster-routing app-route={{appRoute}}
       podcasts="{{podcasts}}"
       podcast-id="{{podcastId}}"
       entry-id="{{entryId}}"
       current-podcast="{{currentPodcast}}"
       current-entry="{{currentEntry}}" ></podcaster-routing>
+    <!-- Storage -->
     <iron-localstorage name="podcasts" value="{{podcasts}}" on-iron-localstorage-load-empty="checkPodcasts"></iron-localstorage>
-    <google-feeds id="feedLoader" result="{{podcastFeed}}" format="mixed"></google-feeds>
+    <iron-localstorage name="lastAudioPlayed" on-iron-localstorage-load-empty="play"></iron-localstorage>
+    <!-- Feeds provider -->
+    <x-google-feeds id="feedLoader" result="{{podcastFeed}}" format="mixed"></x-google-feeds>
 
     <paper-drawer-panel>
       <paper-scroll-header-panel drawer>
@@ -136,7 +140,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   </ul-->
 
                 </template>
-                <paper-fab onclick="{{showAddPodcastDialog}}" icon="add"></paper-fab>
               </template>
               <template is="dom-if" if="[[!podcasts]]">
                 <div class="empty">
@@ -149,59 +152,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <!-- Current podcast list -->
             <section class="podcastEntries" route="podcast">
-              <template is="dom-if" if="{{!currentEntry}}">
-                <iron-list id="list" items="[[currentPodcast.entries]]" as="entry">
-                  <template>
-                    <div class="itemWrapper">
-                      <paper-material class="item" elevation="1">
-                        <div onclick="[[showEntry]]">
-                          <input type="hidden" name="entry-id" value="[[index]]"></input>
-                          <article class="itemContent">
-                            <header>
-                              <label class="itemDate">[[entry.publishedDate]]</label>
-                              <h3 class="itemTitle">[[entry.title]]</h3>
-                            </header>
-
-                            <div class="itemSubcontent">
-                              <template is="dom-if" if="[[entry.cover]]">
-                                <iron-image class="itemImage" preload fade src="[[entry.cover]]" sizing="cover" height="150"></iron-image>
-                              </template>
-                              <div class="itemInfo">
-                                <p class="itemShortDescription">[[entry.contentSnippet]]</p>
-                                <ul class="itemFeatures">
-                                  <li>[[entry.duration]]</li>
-                                </ul>
-                              </div>
-                            </div>
-                          </article>
-                        </div>
-                      </paper-material>
-                    </div>
-                  </template>
-                </iron-list>
-              </template>
-              <template is="dom-if" if="{{currentEntry}}">
-                <paper-card class="itemDetail" elevation="2">
-                  <article class="itemContent">
-                    <header>
-                      <label class="itemDate">[[currentEntry.publishedDate]]</label>
-                      <h2 class="itemTitle">[[currentEntry.title]]</h2>
-                    </header>
-                    <div class="body">
-                      <audio src="[[currentEntry.track]]" controls loop>
-                        <p>Your current broswer does not support audio.</p>
-                      </audio>
-                      <div class="itemSubcontent">
-                        <template is="dom-if" if="[[currentEntry.cover]]">
-                          <iron-image class="itemImage" preload fade src="[[currentEntry.cover]]" sizing="cover" height="150"></iron-image>
-                        </template>
-                        <p class="itemDescription">[[currentEntry.content]]</p>
-                      </div>
-                    </div>
-
-                  </article>
-                </paper-card>
-              </template>
+              <iron-list id="list" items="[[currentPodcast.entries]]" as="entry">
+                <template>
+                  <podcaster-card on-play="play" on-pause="pause" entry="{{entry}}"></podcaster-card>
+                </template>
+              </iron-list>
             </section>
 
             <!-- All Radios -->
@@ -213,7 +168,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </div>
             </section>
           </iron-pages>
+          <div class="panelBottom">
+            <paper-fab class="addButton" onclick="{{showAddPodcastDialog}}" icon="add"></paper-fab>
+            <iron-collapse transition-end-hide="false">
+                <podcaster-player audio="{{currentEntry}}"
+                  on-playing="handlePlay"
+                  on-pause="handlePause"></podcaster-player>
+            </iron-collapse>
+          </div>
         </div>
+
       </paper-scroll-header-panel>
 
     </paper-drawer-panel>
