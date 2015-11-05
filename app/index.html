@@ -75,7 +75,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       current-entry="{{currentEntry}}" ></podcaster-routing>
     <!-- Storage -->
     <iron-localstorage name="podcasts" value="{{podcasts}}" on-iron-localstorage-load-empty="checkPodcasts"></iron-localstorage>
-    <iron-localstorage name="lastAudio" value="{{currentEntry}}"></iron-localstorage>
+    <!--iron-localstorage name="lastEntry" value="{{currentEntry}}"></iron-localstorage-->
     <!-- Feeds provider -->
     <x-google-feeds id="feedLoader" result="{{podcastFeed}}" format="mixed"></x-google-feeds>
 
@@ -119,9 +119,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <iron-pages attr-for-selected="route" selected="{{appRoute}}">
             <!-- All podcasts -->
             <section class="podcasts" route="podcasts">
+              
               <template is="dom-if" if="[[podcasts]]">
                 <template is="dom-repeat" items="[[podcasts]]">
-                  <paper-card onclick="[[showEntries]]">
+                  <paper-card on-click="showEntries">
                     <input type="hidden" name="podcast-id" value="[[index]]"></input>
                     <div class="card-content">
                       <template is="dom-if" if="[[item.cover]]">
@@ -133,14 +134,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       </article>
                     </div>
                   </paper-card>
-                  <!--ul>
-                    <template is="dom-repeat" items="{{result.entries}}">
-                      <li>{{item.title}}</li>
-                    </template>
-                  </ul-->
-
                 </template>
               </template>
+
               <template is="dom-if" if="[[!podcasts]]">
                 <div class="empty">
                   <iron-icon icon="device:wifi-tethering"></iron-icon>
@@ -148,6 +144,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   <paper-icon-button onclick="[[showAddPodcastDialog]]" icon="icons:add-box"></paper-icon-button>
                 </div>
               </template>
+
             </section>
 
             <!-- Current podcast list -->
@@ -169,14 +166,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </section>
           </iron-pages>
         </div>
-          <div class="panelBottom">
-            <paper-fab class="addButton" onclick="{{showAddPodcastDialog}}" icon="add"></paper-fab>
-            <iron-collapse transition-end-hide="false">
-                <podcaster-player audio="{{currentEntry}}"
-                  on-playing="handlePlay"
-                  on-pause="handlePause"></podcaster-player>
-            </iron-collapse>
-          </div>
+
+        <template is="dom-if" if="[[podcasts]]">
+          <podcaster-panel
+            on-open="handleOpenedPanel"
+            on-close="handleClosePanel"
+            on-tap="showAddPodcastDialog">
+            <podcaster-player audio="{{currentEntry}}"
+              on-playing="handlePlay"
+              on-pause="handlePause"
+              on-error="handlePlayerError"></podcaster-player>
+          </podcaster-panel>
+        </template>
 
       </paper-scroll-header-panel>
 
@@ -187,7 +188,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-input label="add podcast feed"></paper-input>
         <div class="buttons">
           <paper-button dialog-dismiss>Cancel</paper-button>
-          <paper-button dialog-confirm onclick="{{addPodcast}}">Add</paper-button>
+          <paper-button dialog-confirm on-click="addPodcast">Add</paper-button>
         </div>
       </paper-dialog>
     </section>

@@ -212,6 +212,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <ul class="itemFeatures">
                   <li><iron-icon icon="device:access-time"></iron-icon></li>
                   <li>[[entry.duration]]</li>
+                  <template is="dom-if" if="[[entry.currentTime]]">
+                    <li><iron-icon icon="image:timelapse"></iron-icon></li>
+                    <li>[[lapdsedTime]]</li>
+                  </template>
                   <li>
                     <template is="dom-if" if="[[entry.playing]]">
                       <paper-icon-button class="js-pause" icon="av:pause-circle-filled"
@@ -276,6 +280,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type: Boolean,
           value: false,
           notify: true
+        },
+
+        lapdsedTime: {
+          type: String,
+          computed: '_composeLapsedTime(entry)'
         }
       },
 
@@ -300,13 +309,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
 
-      attributeChanged: function(name, type) {
-        //console.log(this.localName + '#' + this.id + ' attribute ' + name +' was changed');
+      _composeLapsedTime: function(entry) {
+        if (entry.currentTime) {
+          var hours   = Math.floor(entry.currentTime / 3600),
+              minutes = Math.floor(entry.currentTime / 60),
+              seconds = Math.floor(entry.currentTime - minutes * 60),
+              separator = ':';
 
-        /*if (name === 'entry' && this.entry) {
-          console.log('is playing:', this.entry.playing);
-          this.$$('#progress').classList.add('hidden');
-        }*/
+          return hours.toString().concat(separator, minutes, separator, seconds);
+        }
+        return;
       },
 
       playing: function(bool) {

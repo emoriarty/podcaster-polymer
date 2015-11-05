@@ -40,17 +40,10 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
     console.log('load empty', ev);
   };
 
-  app.showEntries = function() {
-    var pID = this.querySelector('input[name=podcast-id]');
+  app.showEntries = function(ev) {
+    var pID = ev.currentTarget.querySelector('input[name=podcast-id]');
     if (pID && pID.value) {
       Excess.RouteManager.transitionTo('/podcast/' + pID.value);
-    }
-  };
-
-  app.showEntry = function() {
-    var eID = this.querySelector('input[name=entry-id]');
-    if (eID && eID.value) {
-      Excess.RouteManager.transitionTo('/podcast/' + app.podcastId + '/'+ eID.value);
     }
   };
 
@@ -60,7 +53,7 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
     } else {
       var entry  = ev.detail,
           player = document.querySelector('podcaster-player'),
-          panel  = document.querySelector('.panelBottom iron-collapse');
+          panel  = document.querySelector('podcaster-panel');
 
       // When the currentEntry target does not match
       // the incoming event current target means
@@ -76,7 +69,6 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
       }
 
       player.play();
-      panel.show();
     }
   };
 
@@ -88,19 +80,30 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
     }
   };
 
-  app.handlePlay = function(ev) {
-    if (ev.detail.title === app.currentEntry.title) {
-      app.currentTarget.playing(true);
-      var mc = document.querySelector('#mainContainer'),
-          pb = document.querySelector('.panelBottom');
-
-      mc.style.paddingBottom = pb.offsetHeight + 'px';
-    }
+  app.handlePlay = function() {
+    var panel = document.querySelector('podcaster-panel');
+    panel.show();
+    app.currentTarget && app.currentTarget.playing(true);
   };
 
   app.handlePause = function(ev) {
     if (ev.detail.title === app.currentEntry.title) {
       app.currentTarget.playing(false);
+    }
+  };
+
+  app.handlePlayerError = function() {
+    if (app.currentTarget) {
+      app.currentTarget.playing(false);
+      app.currentTarget.loading(false);
+    }
+  };
+
+  app.handleOpenedPanel = function(ev) {
+    var player = document.querySelector('podcaster-player');
+    if (player.audio.title === app.currentEntry.title) {
+      var mc = document.querySelector('#mainContainer');
+      mc.style.paddingBottom = ev.detail.offsetHeight + 'px';
     }
   };
 
@@ -124,20 +127,15 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
     feedStore.reload();
   });
 
-  /*document.querySelector('iron-localstorage[name=lastAudio]').addEventListener('iron-localstorage-load', function(ev) {
-    console.log('iron-localstorage[name=lastAudio]', ev);
-    //TODO Load currentEntry and currentPodcast
-  });*/
+  /* LISTENERS */
+
+
 
   window.onbeforeunload = function() {
-    var podcastStorage = document.querySelector('iron-localstorage[name=podcasts]'),
-        lastAudioStorage = document.querySelector('iron-localstorage[name=lastAudio]');
-
-
+    var podcastStorage = document.querySelector('iron-localstorage[name=podcasts]');
     podcastStorage.save();
-
-    return 'what you are doing';
-  }
+    //return 'what you are doing';
+  };
 
   // Podcast entry related functions
   function refitFeed(feed) {

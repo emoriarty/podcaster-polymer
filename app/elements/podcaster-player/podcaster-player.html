@@ -39,6 +39,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <audio id="player" src="[[audio.track]]"
           on-playing="_handlePlaying"
           on-pause="_handlePause"
+          on-error="_handleError"
           on-timeupdate="_handleTimeUpdate"
           controls>
       </div>
@@ -77,8 +78,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.fire('pause', this.audio);
       },
 
+      _handleError:  function(ev) {
+        this.fire('error', ev);
+      },
+
       _handleTimeUpdate: function(ev) {
-        if (!this.audio.currentTime) this.audio.currentTime = 0;
+        if (!this.audio.currentTime) { this.audio.currentTime = 0; }
         this.set('audio.currentTime', ev.currentTarget.currentTime);
       }
     });
