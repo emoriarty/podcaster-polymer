@@ -15,14 +15,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <style>
       :host {
         display: block;
+        padding: 1rem 0;
+      }
+      label {
+        display: block;
+        margin-bottom: 1rem;
+      }
+      audio {
+        width: 100%;
+      }
+      .wrapper {
+        max-width: 95%;
+        margin: 0 auto;
+      }
+      @media (min-width: 481px){
+        .wrapper {
+          max-width: 80%;
+        }
       }
     </style>
-    <div class="wrapper">
-      <label>[[audio.title]]</label>
-      <audio id="player" src="[[audio.track]]"
-        on-playing="_handlePlaying"
-        on-pause="_handlePause" controls>
-    </div>
+      <div class="wrapper">
+        <label>[[audio.title]]</label>
+        <audio id="player" src="[[audio.track]]"
+          on-playing="_handlePlaying"
+          on-pause="_handlePause"
+          on-timeupdate="_handleTimeUpdate"
+          controls>
+      </div>
   </template>
   <script>
   (function() {
@@ -40,6 +59,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       play: function() {
+        if (this.audio.currentTime && this.audio.currentTime > 0) {
+          this.$.player.currentTime = this.audio.currentTime;
+        }
         this.$.player.play();
       },
 
@@ -53,6 +75,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _handlePause: function() {
         this.fire('pause', this.audio);
+      },
+
+      _handleTimeUpdate: function(ev) {
+        if (!this.audio.currentTime) this.audio.currentTime = 0;
+        this.set('audio.currentTime', ev.currentTarget.currentTime);
       }
     });
   })();

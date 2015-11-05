@@ -75,7 +75,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       current-entry="{{currentEntry}}" ></podcaster-routing>
     <!-- Storage -->
     <iron-localstorage name="podcasts" value="{{podcasts}}" on-iron-localstorage-load-empty="checkPodcasts"></iron-localstorage>
-    <iron-localstorage name="lastAudioPlayed" on-iron-localstorage-load-empty="play"></iron-localstorage>
+    <iron-localstorage name="lastAudio" value="{{currentEntry}}"></iron-localstorage>
     <!-- Feeds provider -->
     <x-google-feeds id="feedLoader" result="{{podcastFeed}}" format="mixed"></x-google-feeds>
 
@@ -168,6 +168,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </div>
             </section>
           </iron-pages>
+        </div>
           <div class="panelBottom">
             <paper-fab class="addButton" onclick="{{showAddPodcastDialog}}" icon="add"></paper-fab>
             <iron-collapse transition-end-hide="false">
@@ -176,7 +177,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   on-pause="handlePause"></podcaster-player>
             </iron-collapse>
           </div>
-        </div>
 
       </paper-scroll-header-panel>
 

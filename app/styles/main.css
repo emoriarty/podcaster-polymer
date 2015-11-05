@@ -20,3 +20,7 @@ body {
 .hidden {
   display: none;
 }
+
+.playing {
+  padding-bottom: 120px;
+}

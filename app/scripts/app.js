@@ -58,17 +58,21 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
     if (!ev.detail || !ev.detail.track) {
       console.log('no track to play!');
     } else {
-      var currentEntry = ev.detail,
-          player       = document.querySelector('podcaster-player'),
-          panel        = document.querySelector('.panelBottom iron-collapse');
+      var entry  = ev.detail,
+          player = document.querySelector('podcaster-player'),
+          panel  = document.querySelector('.panelBottom iron-collapse');
 
-      if (app.currentEntry.target) {
-        app.currentEntry.target.playing(false);
+      // When the currentEntry target does not match
+      // the incoming event current target means
+      // that another card has has been clicked to play
+      // so the current entry must be stopped
+      if (app.currentTarget && app.currentTarget !== ev.currentTarget) {
+        app.currentTarget.playing(false);
       }
 
-      if (!currentEntry.playing) {
-        currentEntry.target = ev.currentTarget;
-        app.currentEntry = currentEntry;
+      if (!entry.playing) {
+        app.currentTarget = ev.currentTarget;
+        app.currentEntry = entry;
       }
 
       player.play();
@@ -86,13 +90,17 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
 
   app.handlePlay = function(ev) {
     if (ev.detail.title === app.currentEntry.title) {
-      app.currentEntry.target.playing(true);
+      app.currentTarget.playing(true);
+      var mc = document.querySelector('#mainContainer'),
+          pb = document.querySelector('.panelBottom');
+
+      mc.style.paddingBottom = pb.offsetHeight + 'px';
     }
   };
 
   app.handlePause = function(ev) {
     if (ev.detail.title === app.currentEntry.title) {
-      app.currentEntry.target.playing(false);
+      app.currentTarget.playing(false);
     }
   };
 
@@ -103,30 +111,33 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
         //images     = serializer.serializeToString(feed.xmlDocument)
         //  .match(/(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)(jpg|png|gif)/g);
 
-    feed.entries.forEach(refitEntry);
+    if (!app.podcasts) { app.podcasts = []; }
+    app.podcasts.push(feed);
+
+    var index = app.podcasts.indexOf(feed);
+    feed.entries.forEach(refitEntry.bind(this, index));
     refitFeed(feed);
 
     // Storing in local storage
-    if (!app.podcasts) {
-      app.podcasts = [];
-      app.podcasts.push(feed);
-    } else {
-      app.podcasts.push(feed);
-      feedStore.value = app.podcasts;
-      feedStore.save();
-      feedStore.reload();
-    }
+    feedStore.value = app.podcasts;
+    feedStore.save();
+    feedStore.reload();
   });
 
-  addEventListener('iron-localstorage-load', function() {
-    console.log(app.podcasts);
+  /*document.querySelector('iron-localstorage[name=lastAudio]').addEventListener('iron-localstorage-load', function(ev) {
+    console.log('iron-localstorage[name=lastAudio]', ev);
     //TODO Load currentEntry and currentPodcast
-  });
+  });*/
 
-  addEventListener('onbeforeunload', function() {
-      console.log('onbeforeunload');
-      //var player = document.querySelector('podcaster-player');
-  });
+  window.onbeforeunload = function() {
+    var podcastStorage = document.querySelector('iron-localstorage[name=podcasts]'),
+        lastAudioStorage = document.querySelector('iron-localstorage[name=lastAudio]');
+
+
+    podcastStorage.save();
+
+    return 'what you are doing';
+  }
 
   // Podcast entry related functions
   function refitFeed(feed) {
@@ -178,7 +189,7 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
     return feed;
   }
 
-  function refitEntry(entry) {
+  function refitEntry(podcastIndex, entry) {
     var track = entry.xmlNode.querySelector('enclosure'),
         cover = entry.xmlNode.querySelector('image'),
         summary, subtitle, author, duration;
@@ -206,6 +217,7 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
       if (duration) { entry.duration = duration.textContent; }
     }
 
+    entry.podcastIndex = podcastIndex;
     delete entry.xmlNode;
 
     return entry;

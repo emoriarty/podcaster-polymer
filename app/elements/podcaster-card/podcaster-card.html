@@ -95,9 +95,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         width: 100%;
       }
 
-      .itemSubcontent .itemInfo {
+      .itemInfo {
         @apply(--layout-flex-3);
         @apply(--layout-vertical);
+      }
+
+      .itemInfo p {
+        @apply(--layout-flex-2);
+      }
+
+      .itemInfo .itemFeatures {
+        @apply(--layout-flex-1);
       }
 
       .itemFeatures {
@@ -271,14 +279,54 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
       },
 
+      observers: [
+        '_checkLoading(entry.loading)',
+        '_checkPlaying(entry.playing)',
+      ],
+
+      _checkLoading: function(loading) {
+        console.log('_checkLoading', loading);
+        if (loading) {
+          this.$$('#progress').classList.remove('hidden');
+        }
+        else {
+          this.$$('#progress').classList.add('hidden');
+        }
+      },
+
+      _checkPlaying: function(playing) {
+        if (playing){
+          this.set('entry.loading', false);
+        }
+      },
+
+      attributeChanged: function(name, type) {
+        //console.log(this.localName + '#' + this.id + ' attribute ' + name +' was changed');
+
+        /*if (name === 'entry' && this.entry) {
+          console.log('is playing:', this.entry.playing);
+          this.$$('#progress').classList.add('hidden');
+        }*/
+      },
+
       playing: function(bool) {
-        this.set('entry.playing', bool);
-        this.$$('#progress').classList.add('hidden');
+        if (typeof bool !== 'undefined') {
+          this.set('entry.playing', bool);
+          this.loading(false);
+        }
+        return this.entry.playing;
+      },
+
+      loading: function(bool) {
+        if (typeof bool !== 'undefined') {
+          this.set('entry.loading', bool);
+        }
+        return this.entry.loading;
       },
 
       _play: function() {
         this.fire('play', this.entry);
-        this.$$('#progress').classList.remove('hidden');
+        this.loading(true);
       },
 
       _pause: function() {
