@@ -9,7 +9,8 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
   // Grab a reference to our auto-binding template
   // and give it some initial binding values
   // Learn more about auto-binding templates at http://goo.gl/Dx1u2g
-  var app = document.querySelector('#app');
+  var app = document.querySelector('#app'), countries, lookupResults, trends,
+      trendsUrl = 'https://itunes.apple.com/es/rss/toppodcasts/limit=10/xml';
 
   // See https://github.com/Polymer/polymer/issues/1381
   window.addEventListener('WebComponentsReady', function() {
@@ -19,7 +20,16 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
   // Listen for template bound event to know when bindings
   // have resolved and content has been stamped to the page
   app.addEventListener('dom-change', function() {
+    var feedLoader = document.getElementById('feedLoader'),
+        feedTrends = document.getElementById('feedTrends');
+
     app.currentEntry = false; // Set falsy to prevent not being shown he podcasts list
+    // Add listener when podcast feed is added
+    feedLoader.addEventListener('google-feeds-response', loadFeed);
+    feedTrends.addEventListener('google-feeds-response', loadTrends);
+
+    // Check podcast trends once loaded
+    feedTrends.feed = trendsUrl;
   });
 
   app.showAddPodcastDialog = function() {
@@ -107,7 +117,35 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
     }
   };
 
-  addEventListener('google-feeds-response', function showData (ev) {
+  app.handleCountries = function(ev) {
+    countries = ev.detail.feed;
+    console.log('countries', countries);
+  };
+
+  app.handleTrends = function(ev) {
+    trends = ev.detail.feed;
+    console.log('trends', trends);
+    app.podcastTrends = ev.detail.feed;
+  };
+
+  app.handleLookup = function(ev) {
+    //TODO check if there is more than one result
+    //show the matched results for selection
+    lookupResults = ev.detail.results;
+    console.log('lookupResults', lookupResults);
+  };
+
+
+
+  /* GLOBAL LISTENERS */
+  window.onbeforeunload = function() {
+    var podcastStorage = document.querySelector('iron-localstorage[name=podcasts]');
+    podcastStorage.save();
+    //return 'what you are doing';
+  };
+
+  /* FUNCTIONS */
+  function loadFeed(ev) {
     var feed      = ev.detail.feed,
         feedStore = document.querySelector('iron-localstorage[name=podcasts]');
         //serializer = new XMLSerializer(),
@@ -125,16 +163,15 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
     feedStore.value = app.podcasts;
     feedStore.save();
     feedStore.reload();
-  });
+  };
 
-  /* LISTENERS */
-
-
-
-  window.onbeforeunload = function() {
-    var podcastStorage = document.querySelector('iron-localstorage[name=podcasts]');
-    podcastStorage.save();
-    //return 'what you are doing';
+  function loadTrends(ev) {
+    console.log(ev);
+    var feed = ev.detail.feed;
+    if (feed) {
+      feed.entries.forEach(refitTrendFeed);
+      app.podcastTrends = feed.entries;
+    }
   };
 
   // Podcast entry related functions
@@ -219,6 +256,25 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
     delete entry.xmlNode;
 
     return entry;
+  }
+
+  function refitTrendFeed(feed) {
+    var images = feed.xmlNode.querySelectorAll('image'),
+        category = feed.xmlNode.querySelector('category');
+
+    if (images) {
+      var imgTag = _.reduce(images, function(memo, image) {
+        return parseInt(image.getAttribute('height')) > parseInt(memo.getAttribute('height')) ? image : memo;
+      });
+      feed.cover = imgTag.textContent;
+    }
+
+    // Get the translated category name
+    if (category) {
+      feed.category = category.getAttribute('label');
+    }
+
+    return feed;
   }
 
 })(document);

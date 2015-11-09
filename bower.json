@@ -25,9 +25,11 @@
     "underscore": "~1.8.3",
     "paper-fab": "PolymerElements/paper-fab#~1.0.6",
     "iron-list": "PolymerElements/iron-list#~1.1.5",
-    "iron-ajax": "PolymerElements/iron-ajax#~1.0.7",
+    "iron-ajax": "PolymerElements/iron-ajax#~1.0.8",
     "paper-material": "PolymerElements/paper-material#~1.0.3",
-    "paper-progress": "PolymerElements/paper-progress#~1.0.7"
+    "paper-progress": "PolymerElements/paper-progress#~1.0.7",
+    "byutv-jsonp": "~1.2.0",
+    "paper-spinner": "PolymerElements/paper-spinner#~1.0.4"
   },
   "devDependencies": {
     "web-component-tester": "*",

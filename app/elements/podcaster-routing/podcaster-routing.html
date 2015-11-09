@@ -16,12 +16,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template>
     <excess-router-config path-style="hash"></excess-router-config>
 
-    <excess-route route="/:main/(.*)?" main="{{appRoute}}"></excess-route>
+    <excess-route route="/:main/(.*)?"
+      main="{{appRoute}}"
+      on-excess-route-will-activate="handleSubroute">
+    </excess-route>
 
     <excess-route route="/podcast/:podcastId/:entryId?"
       podcast-id="{{podcastId}}"
       entry-id="{{entryId}}"
       on-excess-route-will-deactivate="cleanCurrentEntry"></excess-route>
+
 
     <excess-route route="/(.*)" redirect-to="/podcasts" activation-modifiers="x"></excess-route>
   </template>
@@ -35,6 +39,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       properties: {
         appRoute: {
           type: String,
+          notify: true
+        },
+        appSubroute: {
+          type: Object,
           notify: true
         },
         podcasts: {
@@ -83,6 +91,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         console.log('cleanCurrentEntry');
         if (this.entryId) {
           this.entryId = null;
+        }
+      },
+
+      handleSubroute: function(ev, params) {
+        var path = params.transaction.destinations[0].routeParams;
+
+        if (path['1']) {
+          switch (path['1']) {
+            case 'trends':
+              this.appSubroute = {isPodcastTrends: true};
+              break;
+            default:
+              this.appSubroute = null;
+          }
+        } else {
+          this.appSubroute = null;
         }
       }
     });
