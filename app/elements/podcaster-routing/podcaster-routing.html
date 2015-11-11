@@ -43,7 +43,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
         appSubroute: {
           type: Object,
-          notify: true
+          notify: true,
+          observer: 'observeSubroute'
         },
         podcasts: {
           type: Array
@@ -100,7 +101,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (path['1']) {
           switch (path['1']) {
             case 'trends':
-              this.appSubroute = {isPodcastTrends: true};
+              this.appSubroute = {isPodcastTrends: true, name: path['1']};
               break;
             default:
               this.appSubroute = null;
@@ -108,6 +109,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         } else {
           this.appSubroute = null;
         }
+      },
+
+      observeSubroute: function(subroute) {
+        this.fire('subroute-changed', subroute);
       }
     });
   })();

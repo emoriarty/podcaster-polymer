@@ -29,7 +29,9 @@
     "paper-material": "PolymerElements/paper-material#~1.0.3",
     "paper-progress": "PolymerElements/paper-progress#~1.0.7",
     "byutv-jsonp": "~1.2.0",
-    "paper-spinner": "PolymerElements/paper-spinner#~1.0.4"
+    "paper-spinner": "PolymerElements/paper-spinner#~1.0.4",
+    "yui": "~3.18.1",
+    "paper-dropdown-menu": "PolymerElements/paper-dropdown-menu#~1.1.0"
   },
   "devDependencies": {
     "web-component-tester": "*",

@@ -6,6 +6,16 @@
         @apply(--paper-font-display2);
       }
 
+      .itemActions {
+        text-align: right;
+      }
+
+      .itemActions paper-icon-button {
+        color: var(--accent-color);
+        width: 50px;
+        height: 50px;
+      }
+
       @media (max-width: 600px) {
         .page-title {
           font-size: 24px!important;
@@ -36,6 +46,7 @@
         @apply(--layout-center);
         opacity: 0.4;
         text-align: center;
+        margin: 0 auto;
       }
 
       /*

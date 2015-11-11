@@ -51,6 +51,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <!-- endbuild -->
   <!-- build:js scripts/underscore.min.js -->
   <script src="bower_components/underscore/underscore.js"></script>
+  <script src="bower_components/yui/build/yui/yui.js"></script>
   <!-- endbuild -->
 
   <!-- will be replaced with elements/elements.vulcanized.html -->
@@ -74,33 +75,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       podcast-id="{{podcastId}}"
       entry-id="{{entryId}}"
       current-podcast="{{currentPodcast}}"
-      current-entry="{{currentEntry}}" ></podcaster-routing>
+      current-entry="{{currentEntry}}"
+      on-subroute-changed="handleSubroute"></podcaster-routing>
+
     <!-- Storage -->
-    <iron-localstorage name="podcasts" value="{{podcasts}}" on-iron-localstorage-load-empty="checkPodcasts"></iron-localstorage>
-    <!--iron-localstorage name="lastEntry" value="{{currentEntry}}"></iron-localstorage-->
+    <iron-localstorage name="podcasts" value="{{podcasts}}"
+      on-iron-localstorage-load-empty="checkPodcasts"></iron-localstorage>
+    <iron-localstorage name="settings" value="{{settings}}"
+      on-iron-localstorage-load-empty="checkSettings"></iron-localstorage>
+
     <!-- Feeds provider -->
     <x-google-feeds id="feedLoader" format="mixed"></x-google-feeds>
     <x-google-feeds id="feedTrends" format="mixed"></x-google-feeds>
+
     <!-- Ajax calls-->
     <byutv-jsonp
-      url="https://rss.itunes.apple.com/data/countries.json"
+      id="lookup"
+      url="https://itunes.apple.com/lookup"
       handle-as="json"
-      on-response="handleCountries"
-      debounce-duration="300"></iron-ajax>
-    <byutv-jsonp
-      url="https://itunes.apple.com/es/rss/toppodcasts/limit=10/json"
-      handle-as="json"
-      on-response="handleTrends"
+      on-response="handleLookup"
       debounce-duration="300"></byutv-jsonp>
-    <byutv-jsonp
-       url="https://itunes.apple.com/lookup"
-       params='{"id":"665143133"}'
-       handle-as="json"
-       on-response="handleLookup"
-       debounce-duration="300"></byutv-jsonp>
 
-    <paper-drawer-panel>
-      <paper-scroll-header-panel drawer>
+    <!--paper-drawer-panel-->
+      <!--paper-scroll-header-panel drawer>
         <paper-toolbar class="paper-header">
           <div>Menu</div>
         </paper-toolbar>
@@ -114,22 +111,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <a href="#/radios">Radios</a>
           </paper-icon-item>
         </paper-menu>
-      </paper-scroll-header-panel>
+      </paper-scroll-header-panel-->
 
-      <paper-scroll-header-panel main class="flex">
+      <paper-scroll-header-panel class="flex">
         <div class="paper-header">
           <paper-toolbar class="">
-            <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
+            <!--paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button-->
             <div class="title">Podcaster</div>
             <paper-menu-button horizontal-align="right" vertical-offset="56">
               <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
               <div class="dropdown-content">
-                <paper-item>Help</paper-item>
+                <paper-item on-tap="showAddPodcastDialog">Add podcast</paper-item>
+                <paper-item on-tap="showSettings">Settings</paper-item>
               </div>
             </paper-menu-button>
 
           </paper-toolbar>
-          <paper-tabs selected="0">
+          <paper-tabs selected="[[currentTab]]">
             <paper-tab><a href="#/podcasts">My Podcasts</a></paper-tab>
             <paper-tab><a href="#/podcasts/trends">Trends</a></paper-tab>
           </paper-tabs>
@@ -148,9 +146,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </template>
 
                 <template is="dom-if" if="[[podcastTrends]]">
+
+                  <div style="width:100%;margin-bottom:1rem;text-align:center;">
+                    <paper-dropdown-menu label="[[commonTranslations.genre]]">
+                      <paper-menu on-iron-select="handleGenre" selected="0" class="dropdown-content">
+                        <template is="dom-repeat" items="[[mediaTranslations.subgenres]]">
+                          <paper-item id="[[item.id]]">[[item.name]]</paper-item>
+                        </template>
+                      </paper-menu>
+                    </paper-dropdown-menu>
+                  </div>
+
                   <template is="dom-repeat" items="[[podcastTrends]]">
                     <paper-card>
-                      <input type="hidden" value="[[index]]"></input>
+                      <input type="hidden" name="lookupId" value="[[item.lookupId]]"></input>
                       <div class="card-content">
                         <template is="dom-if" if="[[item.cover]]">
                           <iron-image preload fade src="[[item.cover]]" sizing="cover" style="width:100%;height:160px"></iron-image>
@@ -159,6 +168,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                           <h3 class="itemTitle">[[item.title]]</h3>
                           <span class="category">[[item.category]]</span>
                         </article>
+
+                        <div class="itemActions">
+                          <paper-icon-button icon="icons:add-circle" on-click="addTrendPodcast"></paper-icon-button>
+                        </div>
                       </div>
                     </paper-card>
                   </template>
@@ -184,7 +197,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     </paper-card>
                   </template>
                 </template>
-
 
                 <template is="dom-if" if="[[!podcasts]]">
                   <div class="empty">
@@ -231,14 +243,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       </paper-scroll-header-panel>
 
-    </paper-drawer-panel>
+    <!--/paper-drawer-panel-->
     <section id="dialogs">
       <paper-dialog id="addPodcastDlg" modal>
         <h2>New Podcast</h2>
         <paper-input label="add podcast feed"></paper-input>
         <div class="buttons">
           <paper-button dialog-dismiss>Cancel</paper-button>
-          <paper-button dialog-confirm on-click="addPodcast">Add</paper-button>
+          <paper-button dialog-confirm on-tap="addPodcast">Add</paper-button>
+        </div>
+      </paper-dialog>
+
+      <paper-dialog id="settingsDlg" modal>
+        <h2>Settings</h2>
+
+        <template is="dom-if" if="[[commonTranslations]]">
+          <paper-dropdown-menu label="[[commonTranslations.Country]]">
+            <paper-menu selected="[[selectedCountry]]" on-iron-select="handleCountry" class="dropdown-content">
+              <template is="dom-repeat" items="[[commonTranslations.countries]]">
+                <paper-item id="[[item.code]]">[[item.name]]</paper-item>
+              </template>
+            </paper-menu>
+          </paper-dropdown-menu>
+        </template>
+
+        <div class="buttons">
+          <paper-button dialog-dismiss>Close</paper-button>
         </div>
       </paper-dialog>
     </section>

@@ -26,7 +26,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         right: 1em;
       }
     </style>
-      <paper-fab class="addButton" on-tap="_handleTap" icon="add"></paper-fab>
       <iron-collapse id="collapse" transition-end-hide="false">
         <content></content>
       </iron-collapse>
@@ -61,10 +60,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       hide: function() {
         this.$.collapse.hide();
         this.fire('close', this);
-      },
-
-      _handleTap: function() {
-        this.fire('tap-add-button');
       }
     });
   })();
