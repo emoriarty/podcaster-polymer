@@ -103,7 +103,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-toolbar>
         <paper-menu class="content" attr-for-selected="route" selected="{{appRoute}}">
           <paper-icon-item route="podcasts">
-            <iron-icon icon="device:wifi-tethering" item-icon></iron-icon>
+            <iron-icon icon="av:podcast" item-icon></iron-icon>
             <a href="#/podcasts">Podcast</a>
           </paper-icon-item>
           <paper-icon-item route="radios">
@@ -200,7 +200,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
                 <template is="dom-if" if="[[!podcasts]]">
                   <div class="empty">
-                    <iron-icon icon="device:wifi-tethering"></iron-icon>
+                    <iron-icon icon="av:podcast"></iron-icon>
                     <p>Still don't have any podcast? <br />You can add a new podcast by tapping the plus button</p>
                     <paper-icon-button onclick="[[showAddPodcastDialog]]" icon="icons:add-box"></paper-icon-button>
                   </div>
