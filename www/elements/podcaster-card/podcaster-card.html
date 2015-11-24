@@ -1,0 +1,353 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<dom-module id="podcaster-card">
+  <template>
+    <style>
+      :host {
+        padding-top: 0.1rem;
+        padding-right: 0.1rem;
+        padding-left: 0.1rem;
+        padding-bottom: 1rem;
+        --paper-progress-active-color: var(--accent-color);
+      }
+
+      paper-card {
+        width: 100%;
+      }
+
+      paper-icon-button {
+        color: var(--accent-color);
+        width: 50px;
+        height: 50px;
+      }
+
+      p {
+        font-size: 0.8em;
+        margin: 0;
+      }
+
+      paper-progress {
+        width: 100%;
+      }
+
+      .itemContent {
+       @apply(--layout-vertical);
+       padding: 1em;
+      }
+
+      .itemContent > *, .itemInfo > * {
+        box-sizing: border-box;
+        margin-bottom: 1em;
+      }
+
+      .itemContent *:last-child {
+        margin-bottom: 0;
+      }
+
+      .itemDate {
+        display: block;
+        margin-bottom: 1em;
+        text-align: right;
+      }
+
+      .itemContent header {
+        width: 100%;
+      }
+
+      .itemContent h2, .itemContent h3 {
+        margin: 0;
+      }
+
+      .itemContent ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .itemContent li {
+        display: inline-block;
+      }
+
+      .itemSubcontent {
+        @apply(--layout-vertical);
+      }
+
+      .itemTitle {
+        color: var(--default-primary-color);
+      }
+
+      .itemSubcontent .itemImage {
+        @apply(--layout-flex-1);
+        margin-bottom: 1em;
+        width: 100%;
+      }
+
+      .itemInfo {
+        @apply(--layout-flex-3);
+        @apply(--layout-vertical);
+      }
+
+      .itemInfo p {
+        @apply(--layout-flex-2);
+      }
+
+      .itemInfo .itemFeatures {
+        @apply(--layout-flex-1);
+      }
+
+      .itemFeatures {
+        @apply(--layout-flex-1);
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+
+      .itemFeatures li {
+        @apply(--layout-flex-1);
+        margin-right: .5rem;
+      }
+
+      .itemFeatures li:last-child {
+        @apply(--layout-flex-2);
+        text-align: right;
+        margin-right: 0;
+      }
+
+      .itemDescription, .itemShortDescription {
+        @apply(--layout-flex-4);
+        margin: 0;
+      }
+
+      .itemDetail {
+        padding: 1em;
+      }
+
+      .itemActions {
+        text-align: center;
+      }
+
+      .itemActions paper-icon-button {
+        width: 5em;
+        height: 5em;
+      }
+      /* GLOBALS */
+      .itemDuration, .itemFeatures, .category, .itemDate {
+        font-size: 0.8em;
+        color: var(--secondary-text-color);
+      }
+
+      /* Breakpoints */
+      @media all and (min-width: 481px) {
+        .itemSubcontent {
+          @apply(--layout-horizontal);
+        }
+
+        .itemSubcontent .itemImage {
+          width: 150px;
+          margin-right: 1em;
+          margin-bottom: 0;
+        }
+      }
+
+      @media all and (min-width: 641px) {
+        .podcasts paper-card {
+          min-width: 100%;
+        }
+
+        .itemSubcontent {
+          @apply(--layout-vertical);
+        }
+
+        .itemSubcontent .itemImage {
+          margin-right: 0;
+          margin-bottom: 1em;
+          width: 100%;
+        }
+      }
+
+      @media all and (min-width: 841px) {
+        .podcasts paper-card {
+          min-width: 46%;
+        }
+
+        .itemSubcontent {
+          @apply(--layout-horizontal);
+        }
+
+        .itemSubcontent .itemImage {
+          width: 150px;
+          margin-right: 1em;
+          margin-bottom: 0;
+        }
+      }
+    </style>
+    <template is="dom-if" if="[[!full]]">
+
+      <paper-card class="item" elevation="1">
+        <div onclick="[[showEntry]]">
+          <article class="itemContent">
+            <header>
+              <label class="itemDate">[[entry.publishedDate]]</label>
+              <h3 class="itemTitle">[[entry.title]]</h3>
+            </header>
+
+            <div class="itemSubcontent">
+              <template is="dom-if" if="[[entry.cover]]">
+                <iron-image class="itemImage" preload fade src="[[entry.cover]]" sizing="cover" height="150"></iron-image>
+              </template>
+              <div class="itemInfo">
+                <p>[[entry.contentSnippet]]</p>
+                <ul class="itemFeatures">
+                  <li><iron-icon icon="device:access-time"></iron-icon></li>
+                  <li>[[entry.duration]]</li>
+                  <template is="dom-if" if="[[entry.currentTime]]">
+                    <li><iron-icon icon="image:timelapse"></iron-icon></li>
+                    <li>[[lapdsedTime]]</li>
+                  </template>
+                  <li>
+                    <template is="dom-if" if="[[entry.playing]]">
+                      <paper-icon-button class="js-pause" icon="av:pause-circle-filled"
+                        on-click="_pause"></paper-icon-button>
+                    </template>
+                    <template is="dom-if" if="[[!entry.playing]]">
+                      <paper-icon-button class="js-play" icon="av:play-circle-filled"
+                        on-click="_play"></paper-icon-button>
+                    </template>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </article>
+        </div>
+        <paper-progress id="progress" class="hidden" indeterminate></paper-progress>
+      </paper-card>
+    </template>
+
+    <template id="dom-if" if="[[full]]">
+      <paper-card class="itemDetail" elevation="1">
+        <article class="itemContent">
+          <header>
+            <label class="itemDate">[[entry.publishedDate]]</label>
+            <h2 class="itemTitle">[[entry.title]]</h2>
+          </header>
+          <div class="itemActions">
+            <template is="dom-if" if="[[entry.playing]]">
+              <paper-icon-button class="js-pause" icon="av:pause-circle-filled"
+                on-click="_pause"></paper-icon-button>
+            </template>
+            <template is="dom-if" if="[[!entry.playing]]">
+              <paper-icon-button class="js-play" icon="av:play-circle-filled"
+                on-click="_play"></paper-icon-button>
+            </template>
+          </div>
+          <div class="itemSubcontent">
+            <template is="dom-if" if="[[entry.cover]]">
+              <iron-image class="itemImage" preload fade src="[[entry.cover]]" sizing="cover" height="150"></iron-image>
+            </template>
+            <p class="itemDescription">[[entry.content]]</p>
+          </div>
+        </article>
+      </paper-card>
+    </template>
+  </template>
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'podcaster-card',
+
+      properties: {
+        entry: {
+          type: Object,
+          notify: true,
+          reflectToAttribute: true
+        },
+
+        full: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        lapdsedTime: {
+          type: String,
+          computed: '_composeLapsedTime(entry)'
+        }
+      },
+
+      observers: [
+        '_checkLoading(entry.loading)',
+        '_checkPlaying(entry.playing)',
+      ],
+
+      _checkLoading: function(loading) {
+        if (loading) {
+          this.$$('#progress').classList.remove('hidden');
+        }
+        else {
+          this.$$('#progress').classList.add('hidden');
+        }
+      },
+
+      _checkPlaying: function(playing) {
+        if (playing){
+          this.set('entry.loading', false);
+        }
+      },
+
+      _composeLapsedTime: function(entry) {
+        if (entry.currentTime) {
+          var hours   = Math.floor(entry.currentTime / 3600),
+              minutes = Math.floor(entry.currentTime / 60),
+              seconds = Math.floor(entry.currentTime - minutes * 60),
+              separator = ':';
+
+          return hours.toString().concat(separator, minutes, separator, seconds);
+        }
+        return;
+      },
+
+      playing: function(bool) {
+        if (typeof bool !== 'undefined') {
+          this.set('entry.playing', bool);
+          this.loading(false);
+        }
+        return this.entry.playing;
+      },
+
+      loading: function(bool) {
+        if (typeof bool !== 'undefined') {
+          this.set('entry.loading', bool);
+        }
+        return this.entry.loading;
+      },
+
+      _play: function() {
+        this.fire('play', this.entry);
+        this.loading(true);
+      },
+
+      _pause: function() {
+        this.fire('pause', this.entry);
+      },
+
+      _showEntry: function() {
+        this.fire('click', this.entry);
+      }
+    });
+  })();
+  </script>
+</dom-module>

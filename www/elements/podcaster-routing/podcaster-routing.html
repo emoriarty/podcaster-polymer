@@ -1,0 +1,120 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/excess-router/excess-router-config.html">
+<link rel="import" href="../../bower_components/excess-router/excess-route.html">
+
+<dom-module id="podcaster-routing">
+  <template>
+    <excess-router-config path-style="hash"></excess-router-config>
+
+    <excess-route route="/:main/(.*)?"
+      main="{{appRoute}}"
+      on-excess-route-will-activate="handleSubroute">
+    </excess-route>
+
+    <excess-route route="/podcast/:podcastId/:entryId?"
+      podcast-id="{{podcastId}}"
+      entry-id="{{entryId}}"
+      on-excess-route-will-deactivate="cleanCurrentEntry"></excess-route>
+
+
+    <excess-route route="/(.*)" redirect-to="/podcasts" activation-modifiers="x"></excess-route>
+  </template>
+  <script>
+  (function() {
+    'use strict';
+
+    Polymer({
+      is: 'podcaster-routing',
+
+      properties: {
+        appRoute: {
+          type: String,
+          notify: true
+        },
+        appSubroute: {
+          type: Object,
+          notify: true,
+          observer: 'observeSubroute'
+        },
+        podcasts: {
+          type: Array
+        },
+        podcastId: {
+          type: Number,
+          notify: true
+        },
+        entryId: {
+          type: Number,
+          notify: true
+        },
+        audioPlayer: {
+          type: Object,
+          computed: '_selectAudioPlayer(entryId)'
+        },
+        currentPodcast: {
+          type: Object,
+          computed: '_selectPodcast(podcastId)',
+          notify: true,
+          reflectToAttribute: true
+        },
+        currentEntry: {
+          type: Object,
+          computed: '_selectEntry(podcastId, entryId)',
+          notify: true,
+          reflectToAttribute: true
+        }
+      },
+
+      _selectPodcast: function(cp) {
+        this.entryId = undefined;
+        return this.podcasts[cp];
+      },
+
+      _selectEntry: function(cp, ep) {
+        return this.podcasts[cp].entries[ep];
+      },
+
+      _selectAudioPlayer: function(entryId) {
+        console.log(entryId);
+      },
+
+      cleanCurrentEntry: function() {
+        console.log('cleanCurrentEntry');
+        if (this.entryId) {
+          this.entryId = null;
+        }
+      },
+
+      handleSubroute: function(ev, params) {
+        var path = params.transaction.destinations[0].routeParams;
+
+        if (path['1']) {
+          switch (path['1']) {
+            case 'trends':
+              this.appSubroute = {isPodcastTrends: true, name: path['1']};
+              break;
+            default:
+              this.appSubroute = null;
+          }
+        } else {
+          this.appSubroute = null;
+        }
+      },
+
+      observeSubroute: function(subroute) {
+        this.fire('subroute-changed', subroute);
+      }
+    });
+  })();
+  </script>
+</dom-module>
