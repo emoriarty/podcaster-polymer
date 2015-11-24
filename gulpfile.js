@@ -56,6 +56,16 @@ var styleTask = function (stylesPath, srcs) {
     .pipe($.size({title: stylesPath}));
 };
 
+var jsTask = function (jsPath, srcs) {
+  return gulp.src(srcs.map(function(src) {
+      return path.join('app', jsPath, src);
+    }))
+    .pipe($.changed(jsPath, {extension: '.js'}))
+    .pipe(gulp.dest('.tmp/' + jsPath))
+    .pipe(gulp.dest(gulp.paths.dist + '/' + jsPath))
+    .pipe($.size({title: jsPath}));
+};
+
 var jshintTask = function (src) {
   return gulp.src(src)
     .pipe($.jshint.extract()) // Extract JS from .html files
@@ -106,6 +116,12 @@ gulp.task('styles', function () {
 
 gulp.task('elements', function () {
   return styleTask('elements', ['**/*.css']);
+});
+
+// Compile JavaScript files
+gulp.task('js', function () {
+  var results = jsTask('scripts', ['**/*.js', '../../bower_components/webcomponentsjs/webcomponents-lite.js']);
+  return results;
 });
 
 // Lint JavaScript
@@ -253,6 +269,7 @@ gulp.task('serve', ['styles', 'elements', 'images'], function () {
   gulp.watch(['app/**/*.html'], reload);
   gulp.watch(['app/styles/**/*.css'], ['styles', reload]);
   gulp.watch(['app/elements/**/*.css'], ['elements', reload]);
+  //gulp.watch(['app/scripts/**/*.js'], ['js', reload]);
   gulp.watch(['app/{scripts,elements}/**/{*.js,*.html}'], ['jshint']);
   gulp.watch(['app/images/**/*'], reload);
 });

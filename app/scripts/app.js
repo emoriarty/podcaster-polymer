@@ -1,4 +1,4 @@
-/* global Excess, _ */
+/* global Excess, _, YUI */
 /*
 Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
 */
@@ -6,12 +6,41 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
 (function(document) {
   'use strict';
 
+  var app = document.querySelector('#app'),
+      PODCAST_TYPES, COUNTRIES, COMMON_TRANSLATIONS, MEDIA_TRANSLATIONS;
+
+  /* LazyLoading until all components are retrieved */
+
+  // Fetch all the iTunes data
+  fetchItunesData(function() {
+    var settings = JSON.parse(localStorage.getItem('settings')),
+        countryCode = settings && settings.countryCode ? settings.countryCode : 'us',
+        countryData = _.findWhere(COUNTRIES, {country_code: countryCode});
+
+    if (countryData) {
+      fetchItunesTranslations(countryData.language, countryCode, function() {
+        app.commonTranslations = COMMON_TRANSLATIONS;
+        app.mediaTranslations = MEDIA_TRANSLATIONS;
+        finishLazyLoading();
+      });
+    }
+  });
+
+  function finishLazyLoading() {
+    var loadEl = document.getElementById('splash');
+    loadEl.addEventListener('transitionend', loadEl.remove);
+
+    document.body.classList.remove('loading');
+
+    // App is visible and ready to load some data!
+    Excess.RouteManager.start();
+  }
+
+  /* End LazyLoading */
+
   // Grab a reference to our auto-binding template
   // and give it some initial binding values
   // Learn more about auto-binding templates at http://goo.gl/Dx1u2g
-  var app = document.querySelector('#app'),
-      PODCAST_TYPES, COUNTRIES, COMMON_TRANSLATIONS = {}, MEDIA_TRANSLATIONS = {},
-      trendsUrl = 'https://itunes.apple.com/es/rss/toppodcasts/limit=10/xml';
 
   // See https://github.com/Polymer/polymer/issues/1381
   window.addEventListener('WebComponentsReady', function() {
@@ -23,19 +52,6 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
   app.addEventListener('dom-change', function() {
     var feedLoader = document.getElementById('feedLoader'),
         feedTrends = document.getElementById('feedTrends');
-
-    // Fetch all the iTunes data
-    fetchItunesData(function() {
-      var settingsStorage = document.querySelector('iron-localstorage[name=settings]'),
-          settings = settingsStorage.value,
-          countryData = _.findWhere(COUNTRIES, {country_code: settings.countryCode});
-
-      app.countryCode = settings.countryCode;
-      if (countryData) {
-
-        fetchTranslations(countryData.language);
-      }
-    });
 
     // Set falsy to prevent not being shown he podcasts list
     app.currentEntry = false;
@@ -63,9 +79,7 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
   };
 
   /* STORAGE FUNCTIONS */
-  app.checkPodcasts = function(ev) {
-    console.log('load empty', ev);
-  };
+  app.checkPodcasts = function(ev) {};
 
   app.checkSettings = function(ev) {
     var locales = navigator.language.split('-'),
@@ -95,9 +109,7 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
   };
 
   app.showSettings = function() {
-    var settingsStorage = document.querySelector('iron-localstorage[name=settings]'),
-        settings = settingsStorage.value,
-        dialog = document.getElementById('settingsDlg');
+    var dialog = document.getElementById('settingsDlg');
     dialog.open();
   };
 
@@ -139,7 +151,7 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
   app.handlePlay = function() {
     var panel = document.querySelector('podcaster-panel');
     panel.show();
-    app.currentTarget && app.currentTarget.playing(true);
+    if (app.currentTarget) { app.currentTarget.playing(true); }
   };
 
   app.handlePause = function(ev) {
@@ -169,7 +181,7 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
 
   app.handleLookup = function(ev) {
     var lookupResults = ev.detail.results;
-    if (lookupResults.length == 1) {
+    if (lookupResults.length === 1) {
       addPodcastFeed(lookupResults[0].feedUrl);
     } else {
       // TODO more than one result
@@ -177,11 +189,13 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
   };
 
   app.handleSubroute = function(ev) {
+    var settingsStorage = document.querySelector('iron-localstorage[name=settings]'),
+        settings = settingsStorage.value;
+
     switch (ev.detail.name) {
       case 'trends':
         app.currentTab = 1;
-        // Fetch trends
-        feedTrends.feed = composeTrendsUrl();
+        feedTrends.feed = composeTrendsUrl({countryCode: settings.countryCode});
         break;
       default:
         app.currentTab = 0;
@@ -189,7 +203,9 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
   };
 
   app.handleGenre = function(ev) {
-    feedTrends.feed = composeTrendsUrl({genre: ev.detail.item.id});
+    var settingsStorage = document.querySelector('iron-localstorage[name=settings]'),
+        settings = settingsStorage.value;
+    feedTrends.feed = composeTrendsUrl({countryCode: settings.countryCode, genre: ev.detail.item.id});
   };
 
   app.handleCountry = function(ev) {
@@ -214,7 +230,7 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
 
   /* FUNCTIONS */
   function addPodcastFeed(feedUrl) {
-    if (!feedUrl) return;
+    if (!feedUrl) { return; }
 
     var feedLoader = document.getElementById('feedLoader');
 
@@ -241,7 +257,7 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
     feedStore.value = app.podcasts;
     feedStore.save();
     feedStore.reload();
-  };
+  }
 
   function loadTrends(ev) {
     var feed = ev.detail.feed;
@@ -249,7 +265,7 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
       feed.entries.forEach(refitTrendFeed);
       app.podcastTrends = feed.entries;
     }
-  };
+  }
 
   // Podcast entry related functions
   function refitFeed(feed) {
@@ -360,18 +376,22 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
   }
 
   function fetchItunesData(cb) {
-    var podcastTypes;
-
-    fetchPodcastTypes();
-    fetchCountries(cb);
+    fetchPodcastTypes(fetchCountries.bind(this, cb));
   }
 
-  function fetchPodcastTypes() {
+  function fetchItunesTranslations(lang, currentCountryCode, cb) {
+    lang = lang || 'en-US';
+    fetchCommonTranslations(lang, currentCountryCode, fetchMediaTranslations.bind(this, lang, cb));
+  }
+
+  /* JSONP Proxy calls */
+  function fetchPodcastTypes(cb) {
     YUI().use('yql', function(Y) {
       Y.YQL('select * from html where url=\'https://rss.itunes.apple.com/data/media-types.json\'', function(r) {
         PODCAST_TYPES = JSON.parse(r.query.results.body);
         PODCAST_TYPES = _.findWhere(PODCAST_TYPES, {store: 'podcast'});
         console.log('PODCAST_TYPES', PODCAST_TYPES);
+        if (cb) { cb(); }
       });
     });
   }
@@ -389,12 +409,14 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
         }, []);
 
         console.log('COUNTRIES', COUNTRIES);
-        cb && cb();
+        if (cb) { cb(); }
       });
     });
   }
 
-  function fetchTranslations(lang) {
+
+
+  function fetchCommonTranslations(lang, currentCountryCode, cb) {
     lang = lang || 'en-US';
 
     YUI().use('yql', function(Y) {
@@ -404,16 +426,20 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
 
         COMMON_TRANSLATIONS.countries = Object.keys(COMMON_TRANSLATIONS.feed_country)
           .map(function(k, index) {
-            if (k === app.countryCode) {
-              console.log(k, index);
+            if (k === currentCountryCode) {
               app.selectedCountry = index;
             }
-            return {code: k, name: COMMON_TRANSLATIONS.feed_country[k]}
+            return {code: k, name: COMMON_TRANSLATIONS.feed_country[k]};
           });
-
-        app.commonTranslations = COMMON_TRANSLATIONS;
+        if (cb) { cb(); }
       });
+    });
+  }
 
+  function fetchMediaTranslations(lang, cb) {
+    lang = lang || 'en-US';
+
+    YUI().use('yql', function(Y) {
       Y.YQL('select * from html where url=\'https://rss.itunes.apple.com/data/lang/' + lang + '/media-types.json\'', function(r) {
         MEDIA_TRANSLATIONS = JSON.parse(r.query.results.body);
         console.log('MEDIA_TRANSLATIONS', MEDIA_TRANSLATIONS);
@@ -421,15 +447,16 @@ Copyright (c) 2015 Enrique Arias Cerveró. All rights reserved.
           return { name: MEDIA_TRANSLATIONS[obj.translation_key], id: obj.id };
         });
 
-        app.mediaTranslations = MEDIA_TRANSLATIONS;
+        if (cb) { cb(); }
       });
     });
   }
 
+  /* utils */
   function composeTrendsUrl(opts) {
-    opts = opts || {};
+    opts = opts || {countryCode: 'us'};
 
-    var url = PODCAST_TYPES.feed_types[0].urlPrefix.replace('<%= country_code %>', app.countryCode),
+    var url = PODCAST_TYPES.feed_types[0].urlPrefix.replace('<%= country_code %>', opts.countryCode),
         params = 'limit=' + (opts.limit || 25) + '/';
 
     if (opts.genre && opts.genre.length > 0) { params = params.concat('genre=', opts.genre, '/'); }

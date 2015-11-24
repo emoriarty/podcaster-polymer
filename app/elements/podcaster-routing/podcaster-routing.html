@@ -14,7 +14,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <dom-module id="podcaster-routing">
   <template>
-    <excess-router-config path-style="hash"></excess-router-config>
+    <excess-router-config manual-start="[[manualStart]]" path-style="hash"></excess-router-config>
 
     <excess-route route="/:main/(.*)?"
       main="{{appRoute}}"
@@ -26,7 +26,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       entry-id="{{entryId}}"
       on-excess-route-will-deactivate="cleanCurrentEntry"></excess-route>
 
-
     <excess-route route="/(.*)" redirect-to="/podcasts" activation-modifiers="x"></excess-route>
   </template>
   <script>
@@ -37,6 +36,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       is: 'podcaster-routing',
 
       properties: {
+        manualStart: Boolean,
         appRoute: {
           type: String,
           notify: true
