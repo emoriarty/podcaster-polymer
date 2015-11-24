@@ -299,6 +299,23 @@ gulp.task('build', ['clean'], function (cb) {
     cb);
 });
 
+gulp.task('gh-pages', ['build'], function() {
+  gulp.src('www/index.html')
+    .pipe($.replace(/styles\//g, 'www/styles/'))
+    .pipe($.replace(/scripts\//g, 'www/scripts/'))
+    .pipe($.replace(/images\//g, 'www/images/'))
+    .pipe($.replace(/elements\//g, 'www/elements/'))
+    .pipe($.replace('manifest.json', 'www/manifest.json'))
+    .pipe(gulp.dest('.'));
+});
+
+// Watch files for changes & reload
+gulp.task('gh-pages-serve', ['gh-pages'], function () {
+  $.connect.server({
+    port: 5010,
+    root: '.'
+  });
+});
 
 /* Cordova setting and tasks */
 // OPTIONS
